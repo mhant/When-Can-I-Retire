@@ -172,6 +172,9 @@ export default function Home() {
     }, 0);
   };
 
+  const getCostWithInflation = (baseCost, inflationRate, years) => {
+    return baseCost * years /** * (1 + inflationRate)**/;
+  };
   // Calculate retirement projection
   const retirementData = useMemo(() => {
     const age = parseInt(currentAge) || 30;
@@ -179,48 +182,33 @@ export default function Home() {
 
     let currentNetWorth = netWorth;
     let projectedAge = age;
-    const maxAge = 100;
+    const maxAge = 110;
     const dataPoints = [];
-    let retirementAge = null;
-
+    const costWithInflation = getCostWithInflation(((totalMonthlyExpenses) * 12), inflation, (maxAge - age));
+    let retirementAge = (
+      (
+        costWithInflation -
+        (currentNetWorth - totalDebts)
+      )
+      /
+      ((totalMonthlyIncome) * 12)
+    ) + age;
     for (let year = 0; projectedAge <= maxAge; year++, projectedAge++) {
-      const inflationMultiplier = Math.pow(1 + inflation, year);
-
       const activeIncome = getActiveIncomeAtAge(projectedAge, retirementAge);
       const activeExpenses = getActiveExpensesAtAge(projectedAge, retirementAge);
-      const adjustedIncome = activeIncome * inflationMultiplier;
-      const adjustedExpenses = activeExpenses * inflationMultiplier;
-      const adjustedMonthlySavings = adjustedIncome - adjustedExpenses;
+      const adjustedMonthlySavings = activeIncome - activeExpenses;
 
       currentNetWorth += adjustedMonthlySavings * 12;
-
-      if (year % 5 === 0 || projectedAge <= age + 10) {
-        dataPoints.push({
-          age: projectedAge,
-          netWorth: Math.round(currentNetWorth),
-          canRetire: false
-        });
-      }
-
-      const retirementExpenses = getActiveExpensesAtAge(projectedAge, projectedAge);
-      const adjustedRetirementExpenses = retirementExpenses * inflationMultiplier;
-      const requiredNetWorth = adjustedRetirementExpenses * 12 * 25;
-
-      if (currentNetWorth >= requiredNetWorth && year > 0 && retirementAge === null) {
-        retirementAge = projectedAge;
-        if (dataPoints.length > 0) {
-          dataPoints[dataPoints.length - 1].canRetire = true;
-        }
-      }
+      dataPoints.push({
+        age: projectedAge,
+        netWorth: Math.round(currentNetWorth),
+        canRetire: false
+      });
     }
-
-    const currentRetirementExpenses = getActiveExpensesAtAge(age, age);
-    const currentRequiredNetWorth = currentRetirementExpenses * 12 * 25;
 
     return {
       canRetire: retirementAge !== null,
       retirementAge,
-      requiredNetWorth: currentRequiredNetWorth,
       dataPoints
     };
   }, [currentAge, inflationRate, netWorth, incomes, expenses, assets, debts]);
@@ -263,7 +251,7 @@ export default function Home() {
                   placeholder="30"
                 />
               </div>
-              <div className="input-row">
+              {/* <div className="input-row">
                 <label>Inflation Rate (%):</label>
                 <input
                   type="number"
@@ -272,7 +260,7 @@ export default function Home() {
                   placeholder="3"
                   step="0.1"
                 />
-              </div>
+              </div> */}
             </section>
 
             <section className="section">
@@ -316,13 +304,7 @@ export default function Home() {
                   <div className="retirement-title">🎉 You can retire at age:</div>
                   <div className="retirement-age">{retirementData.retirementAge}</div>
                   <div className="retirement-subtext">
-                    Required net worth: ${retirementData.requiredNetWorth.toLocaleString()}
-                  </div>
-                  <div className="retirement-subtext">
                     Monthly retirement expenses: ${getActiveExpensesAtAge(parseInt(currentAge), parseInt(currentAge)).toLocaleString()}
-                  </div>
-                  <div className="retirement-subtext">
-                    (Based on 4% withdrawal rule with {inflationRate}% inflation)
                   </div>
                 </div>
               ) : (
