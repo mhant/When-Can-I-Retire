@@ -216,7 +216,7 @@ export default function Home() {
   return (
     <div className="app">
       <header className="header">
-        <h1>When Can I Retire?</h1>
+        <h1>Retirement Simulator</h1>
       </header>
 
       <nav className="tab-container">
@@ -299,12 +299,12 @@ export default function Home() {
 
             <section className="section">
               <h2>Retirement Projection</h2>
-              {retirementData.canRetire ? (
+              {retirementData && retirementData.canRetire && retirementData?.retirementAge ? (
                 <div className="retirement-result success">
                   <div className="retirement-title">🎉 You can retire at age:</div>
-                  <div className="retirement-age">{retirementData.retirementAge}</div>
+                  <div className="retirement-age">{retirementData?.retirementAge}</div>
                   <div className="retirement-subtext">
-                    Monthly retirement expenses: ${getActiveExpensesAtAge(parseInt(currentAge), parseInt(currentAge)).toLocaleString()}
+                    Monthly retirement expenses: ${getActiveExpensesAtAge(parseInt(currentAge), parseInt(currentAge ?? "0")).toLocaleString()}
                   </div>
                 </div>
               ) : (
