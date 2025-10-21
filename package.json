@@ -19,6 +19,9 @@
     "@types/react-dom": "^19",
     "@tailwindcss/postcss": "^4",
     "tailwindcss": "^4",
-    "recharts": "^2.9"
+    "recharts": "^2.9",
+    "@fortawesome/fontawesome-svg-core": "^7",
+    "@fortawesome/free-solid-svg-icons": "^7",
+    "@fortawesome/react-fontawesome": "^3"
   }
 }

@@ -24,3 +24,54 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+.button-container {
+  /* Layout and Sizing */
+  display: flex;
+  gap: 10px;
+  padding: 10px;
+}
+
+.export-button {
+  /* Vertically center icon and text */
+  justify-content: center;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  /* Rounded corners */
+  cursor: pointer;
+
+  /* Color and Background */
+  background-color: #4CAF50;
+  /* A standard green, signifying "go/export" */
+  color: white;
+
+  /* Typography */
+  font-family: Arial, sans-serif;
+  font-size: 16px;
+  font-weight: bold;
+  text-decoration: none;
+  /* In case it's an anchor tag (<a>) */
+
+  /* Effects and Polish */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  /* Subtle shadow for depth */
+  transition: background-color 0.3s ease, transform 0.1s ease;
+  /* Smooth transitions */
+}
+
+.export-button:hover {
+  background-color: #45a049;
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+}
+
+.export-button:active {
+  background-color: #3e8e41;
+  transform: translateY(1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.export-button .icon {
+  margin-right: 8px;
+  font-size: 18px;
+}

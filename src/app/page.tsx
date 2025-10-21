@@ -1,7 +1,9 @@
 "use client";
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import './App.css';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faDownload, faFileImport, faMagnifyingGlass, faSave } from '@fortawesome/free-solid-svg-icons';
 
 interface AssetDebt {
   id: string;
@@ -18,6 +20,44 @@ interface IncomeExpense {
 }
 
 export default function Home() {
+  const fileInputRef = useRef(null);
+
+  const triggerFileInput = () => {
+    if (fileInputRef?.current) {
+      fileInputRef.current.click();
+    }
+  };
+
+  const setDataFromSave = (savedData: string) => {
+    const data = JSON.parse(savedData);
+    setCurrentAge(data.currentAge || '30');
+    setInflationRate(data.inflationRate || '3');
+    setAssets(data.assets || []);
+    setDebts(data.debts || []);
+    setIncomes(data.incomes || []);
+    setExpenses(data.expenses || []);
+  }
+
+  const handleFileChange = (event) => {
+    const file = event.target.files[0];
+
+    if (file) {
+      const reader = new FileReader();
+
+      reader.onload = (e) => {
+        try {
+          setDataFromSave(e?.target?.result?.toString() ?? "");
+        } catch (error) {
+          alert('Error: Could not parse the JSON file.');
+        }
+      };
+
+      reader.readAsText(file);
+    }
+
+    // Reset the input value so the same file can be imported again
+    event.target.value = null;
+  };
   // User profile
   const [currentAge, setCurrentAge] = useState('30');
   const [inflationRate, setInflationRate] = useState('3');
@@ -65,13 +105,7 @@ export default function Home() {
     try {
       const savedData = localStorage.getItem('retirementData');
       if (savedData) {
-        const data = JSON.parse(savedData);
-        setCurrentAge(data.currentAge || '30');
-        setInflationRate(data.inflationRate || '3');
-        setAssets(data.assets || []);
-        setDebts(data.debts || []);
-        setIncomes(data.incomes || []);
-        setExpenses(data.expenses || []);
+        setDataFromSave(savedData);
       }
     } catch (error) {
       console.error('Error loading data:', error);
@@ -232,7 +266,35 @@ export default function Home() {
       <header className="header">
         <h1>Retirement Simulator</h1>
       </header>
-
+      <div className="button-container">
+        <button className="export-button" onClick={() => {
+          const dataStr = JSON.stringify({
+            currentAge,
+            inflationRate,
+            assets,
+            debts,
+            incomes,
+            expenses
+          }, null, 2);
+          const blob = new Blob([dataStr], { type: "application/json" });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = "retirement_data.json";
+          a.click();
+          URL.revokeObjectURL(url);
+        }}><FontAwesomeIcon icon={faSave} /> Export Data</button>
+        <button className="export-button" onClick={triggerFileInput}>
+          <FontAwesomeIcon icon={faFileImport} /> Import Data</button>
+      </div>
+      {/* Hidden file input element */}
+      <input
+        type="file"
+        ref={fileInputRef}
+        onChange={handleFileChange}
+        accept=".json"
+        style={{ display: 'none' }}
+      />
       <nav className="tab-container">
         <button className={`tab ${activeTab === 'overview' ? 'active' : ''}`} onClick={() => setActiveTab('overview')}>
           Overview
@@ -460,14 +522,6 @@ export default function Home() {
                   Ends at retirement
                 </label>
               </div>
-              {!incomeEndsAtRetirement && (
-                <input
-                  type="number"
-                  placeholder="End age (optional)"
-                  value={incomeEndAge}
-                  onChange={(e) => setIncomeEndAge(e.target.value)}
-                />
-              )}
               <button className="add-button" onClick={addIncome}>Add Income</button>
             </div>
             <div className="list">
@@ -520,14 +574,6 @@ export default function Home() {
                   Ends at retirement
                 </label>
               </div>
-              {!expenseEndsAtRetirement && (
-                <input
-                  type="number"
-                  placeholder="End age (optional)"
-                  value={expenseEndAge}
-                  onChange={(e) => setExpenseEndAge(e.target.value)}
-                />
-              )}
               <button className="add-button" onClick={addExpense}>Add Expense</button>
             </div>
             <div className="list">
