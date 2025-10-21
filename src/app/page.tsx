@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useMemo, useEffect, useRef } from 'react';
+import React, { useState, useMemo, useEffect, useRef, ChangeEvent } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import './App.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -20,7 +20,7 @@ interface IncomeExpense {
 }
 
 export default function Home() {
-  const fileInputRef = useRef(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const triggerFileInput = () => {
     if (fileInputRef?.current) {
@@ -38,9 +38,8 @@ export default function Home() {
     setExpenses(data.expenses || []);
   }
 
-  const handleFileChange = (event) => {
-    const file = event.target.files[0];
-
+  const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event?.target?.files ? event?.target?.files[0] : null;
     if (file) {
       const reader = new FileReader();
 
@@ -206,7 +205,7 @@ export default function Home() {
   // Calculate active income/expenses at a given age
   const getActiveIncomeAtAge = (age: number, retirementAge: number | null = null) => {
     return incomes.reduce((sum, income) => {
-      if (income.endsAtRetirement && retirementAge && age >= retirementAge) return sum;
+      if (income.endsAtRetirement && retirementAge && age > retirementAge) return sum;
       if (income.endAge && age >= income.endAge) return sum;
       return sum + income.value;
     }, 0);
@@ -214,7 +213,7 @@ export default function Home() {
 
   const getActiveExpensesAtAge = (age: number, retirementAge: number | null = null) => {
     return expenses.reduce((sum, expense) => {
-      if (expense.endsAtRetirement && retirementAge && age >= retirementAge) return sum;
+      if (expense.endsAtRetirement && retirementAge && age > retirementAge) return sum;
       if (expense.endAge && age >= expense.endAge) return sum;
       return sum + expense.value;
     }, 0);
@@ -232,10 +231,12 @@ export default function Home() {
     let projectedAge = age;
     const maxAge = 110;
     const dataPoints = [];
-    const costWithInflation = getCostWithInflation(((totalMonthlyExpenses) * 12), inflation, (maxAge - age));
-    let retirementAge = (
+    // const costWithInflation = getCostWithInflation(((totalMonthlyExpenses) * 12), inflation, (maxAge - age));
+    const baseCost = (totalMonthlyExpenses) * 12;
+    const yearsToMaxAge = maxAge - age;
+    let retirementAge = Math.ceil(
       (
-        costWithInflation -
+        (baseCost * yearsToMaxAge) -
         (currentNetWorth - totalDebts)
       )
       /
