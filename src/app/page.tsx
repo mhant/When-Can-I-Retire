@@ -3,30 +3,44 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import './App.css';
 
+interface AssetDebt {
+  id: string;
+  name: string;
+  value: number;
+}
+
+interface IncomeExpense {
+  id: string;
+  name: string;
+  value: number;
+  endAge?: number | null;
+  endsAtRetirement: boolean;
+}
+
 export default function Home() {
   // User profile
   const [currentAge, setCurrentAge] = useState('30');
   const [inflationRate, setInflationRate] = useState('3');
 
   // Assets
-  const [assets, setAssets] = useState([]);
+  const [assets, setAssets] = useState<AssetDebt[]>([]);
   const [assetName, setAssetName] = useState('');
   const [assetValue, setAssetValue] = useState('');
 
   // Debts
-  const [debts, setDebts] = useState([]);
+  const [debts, setDebts] = useState<AssetDebt[]>([]);
   const [debtName, setDebtName] = useState('');
   const [debtValue, setDebtValue] = useState('');
 
   // Monthly Income
-  const [incomes, setIncomes] = useState([]);
+  const [incomes, setIncomes] = useState<IncomeExpense[]>([]);
   const [incomeName, setIncomeName] = useState('');
   const [incomeValue, setIncomeValue] = useState('');
   const [incomeEndAge, setIncomeEndAge] = useState('');
   const [incomeEndsAtRetirement, setIncomeEndsAtRetirement] = useState(false);
 
   // Monthly Expenses
-  const [expenses, setExpenses] = useState([]);
+  const [expenses, setExpenses] = useState<IncomeExpense[]>([]);
   const [expenseName, setExpenseName] = useState('');
   const [expenseValue, setExpenseValue] = useState('');
   const [expenseEndAge, setExpenseEndAge] = useState('');
@@ -142,10 +156,10 @@ export default function Home() {
   };
 
   // Delete functions
-  const deleteAsset = (id) => setAssets(assets.filter(a => a.id !== id));
-  const deleteDebt = (id) => setDebts(debts.filter(d => d.id !== id));
-  const deleteIncome = (id) => setIncomes(incomes.filter(i => i.id !== id));
-  const deleteExpense = (id) => setExpenses(expenses.filter(e => e.id !== id));
+  const deleteAsset = (id: string) => setAssets(assets.filter(a => a.id !== id));
+  const deleteDebt = (id: string) => setDebts(debts.filter(d => d.id !== id));
+  const deleteIncome = (id: string) => setIncomes(incomes.filter(i => i.id !== id));
+  const deleteExpense = (id: string) => setExpenses(expenses.filter(e => e.id !== id));
 
   // Calculate totals
   const totalAssets = assets.reduce((sum, a) => sum + a.value, 0);
@@ -156,7 +170,7 @@ export default function Home() {
   const monthlySavings = totalMonthlyIncome - totalMonthlyExpenses;
 
   // Calculate active income/expenses at a given age
-  const getActiveIncomeAtAge = (age, retirementAge = null) => {
+  const getActiveIncomeAtAge = (age: number, retirementAge: number | null = null) => {
     return incomes.reduce((sum, income) => {
       if (income.endsAtRetirement && retirementAge && age >= retirementAge) return sum;
       if (income.endAge && age >= income.endAge) return sum;
@@ -164,7 +178,7 @@ export default function Home() {
     }, 0);
   };
 
-  const getActiveExpensesAtAge = (age, retirementAge = null) => {
+  const getActiveExpensesAtAge = (age: number, retirementAge: number | null = null) => {
     return expenses.reduce((sum, expense) => {
       if (expense.endsAtRetirement && retirementAge && age >= retirementAge) return sum;
       if (expense.endAge && age >= expense.endAge) return sum;
@@ -172,7 +186,7 @@ export default function Home() {
     }, 0);
   };
 
-  const getCostWithInflation = (baseCost, inflationRate, years) => {
+  const getCostWithInflation = (baseCost: number, inflationRate: number, years: number) => {
     return baseCost * years /** * (1 + inflationRate)**/;
   };
   // Calculate retirement projection
