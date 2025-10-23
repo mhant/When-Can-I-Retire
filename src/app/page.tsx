@@ -15,7 +15,6 @@ interface IncomeExpense {
   id: string;
   name: string;
   value: number;
-  endAge?: number | null;
   endsAtRetirement: boolean;
 }
 
@@ -206,7 +205,6 @@ export default function Home() {
   const getActiveIncomeAtAge = (age: number, retirementAge: number | null = null) => {
     return incomes.reduce((sum, income) => {
       if (income.endsAtRetirement && retirementAge && age > retirementAge) return sum;
-      if (income.endAge && age >= income.endAge) return sum;
       return sum + income.value;
     }, 0);
   };
@@ -214,7 +212,6 @@ export default function Home() {
   const getActiveExpensesAtAge = (age: number, retirementAge: number | null = null) => {
     return expenses.reduce((sum, expense) => {
       if (expense.endsAtRetirement && retirementAge && age > retirementAge) return sum;
-      if (expense.endAge && age >= expense.endAge) return sum;
       return sum + expense.value;
     }, 0);
   };
@@ -537,9 +534,6 @@ export default function Home() {
                       {income.endsAtRetirement && (
                         <div className="list-item-detail">Ends at retirement</div>
                       )}
-                      {income.endAge && !income.endsAtRetirement && (
-                        <div className="list-item-detail">Ends at age {income.endAge}</div>
-                      )}
                     </div>
                     <button className="delete-button" onClick={() => deleteIncome(income.id)}>×</button>
                   </div>
@@ -588,9 +582,6 @@ export default function Home() {
                       <div className="list-item-value negative">${expense.value.toLocaleString()}/mo</div>
                       {expense.endsAtRetirement && (
                         <div className="list-item-detail">Ends at retirement</div>
-                      )}
-                      {expense.endAge && !expense.endsAtRetirement && (
-                        <div className="list-item-detail">Ends at age {expense.endAge}</div>
                       )}
                     </div>
                     <button className="delete-button" onClick={() => deleteExpense(expense.id)}>×</button>

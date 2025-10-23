@@ -147,6 +147,10 @@
     font-size: 14px;
 }
 
+body {
+    color: #000;
+}
+
 .form {
     display: flex;
     flex-direction: column;
