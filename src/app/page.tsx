@@ -6,8 +6,15 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faDownload, faFileImport, faMagnifyingGlass, faSave } from '@fortawesome/free-solid-svg-icons';
 import { AssetDebt, IncomeExpense } from './types';
 import MonthlyExpensesIncome from './expensesIncome';
-import { Asset } from 'next/font/google';
 import AssetsDebts from './assetsDebts';
+
+interface RetirementDataPoint {
+  age: number;
+  netWorth0: number;
+  netWorth5: number;
+  netWorth10: number;
+  netWorth15: number;
+}
 
 export default function Home() {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -174,29 +181,28 @@ export default function Home() {
     }, 0);
   };
 
-  const getActiveExpensesAtAge = (age: number, retirementAge: number | null = null) => {
+  const getActiveExpensesAtAge = (age: number, years: number, retirementAge: number | null = null, inflation: number | null) => {
     return expenses.reduce((sum, expense) => {
-      if (expense.endsAtRetirement && retirementAge && age > retirementAge) return sum;
-      return sum + expense.value;
+      const inflationEst = (inflation ? Math.pow(inflation + 1, years) : 1)
+      if (expense.endsAtRetirement && retirementAge && age > retirementAge) return sum * inflationEst;
+      return (sum + expense.value) * inflationEst;
     }, 0);
   };
 
-  const getCostWithInflation = (baseCost: number, inflationRate: number, years: number) => {
-    return baseCost * years /** * (1 + inflationRate)**/;
-  };
   // Calculate retirement projection
   const retirementData = useMemo(() => {
     const age = parseInt(currentAge) || 30;
     const inflation = (parseFloat(inflationRate) || 3) / 100;
 
-    let currentNetWorth = netWorth;
-    let projectedAge = age;
+    var currentNetWorth = netWorth;
+    var projectedAge = age;
     const maxAge = 110;
-    const dataPoints = [];
-    // const costWithInflation = getCostWithInflation(((totalMonthlyExpenses) * 12), inflation, (maxAge - age));
+    const dataPoints: RetirementDataPoint[] = new Array<RetirementDataPoint | undefined>(maxAge - age + 21).fill(undefined).map((_, i) => ({ age: 0, netWorth0: 0, netWorth5: 0, netWorth10: 0, netWorth15: 0 }));
+
     const baseCost = (totalMonthlyExpenses) * 12;
     const yearsToMaxAge = maxAge - age;
-    let retirementAge = Math.ceil(
+    // const baseCostWithInflation = baseCost * yearsToMaxAge * (Math.pow(1 + inflation, yearsToMaxAge / 10));
+    var retirementAge = Math.ceil(
       (
         (baseCost * yearsToMaxAge) -
         (currentNetWorth - totalDebts)
@@ -204,25 +210,61 @@ export default function Home() {
       /
       ((totalMonthlyIncome) * 12)
     ) + age;
-    for (let year = 0; projectedAge <= maxAge; year++, projectedAge++) {
-      const activeIncome = getActiveIncomeAtAge(projectedAge, retirementAge);
-      const activeExpenses = getActiveExpensesAtAge(projectedAge, retirementAge);
-      const adjustedMonthlySavings = activeIncome - activeExpenses;
+    const initialRetirementAge = retirementAge;
+    for (let i = 0; i < 4; i++) {
+      retirementAge += 5;
+      let currentTotalWorth = (currentNetWorth - totalDebts);
+      projectedAge = age;
+      for (let year = 0; projectedAge <= maxAge; year++) {
+        projectedAge++;
+        const activeIncome = getActiveIncomeAtAge(projectedAge, retirementAge);
+        const activeExpenses = getActiveExpensesAtAge(projectedAge, year, retirementAge, inflation);
+        const adjustedMonthlySavings = activeIncome - activeExpenses;
+        currentTotalWorth += adjustedMonthlySavings * 12;
+        let currPoint = dataPoints[year];
+        if (currentTotalWorth > 0) {
+          switch (i) {
+            case 0:
+              currPoint.netWorth0 = currentTotalWorth;
+              break;
+            case 1:
+              currPoint.netWorth5 = currentTotalWorth;
+              break;
+            case 2:
+              currPoint.netWorth10 = currentTotalWorth;
+              break;
+            case 3:
+              currPoint.netWorth15 = currentTotalWorth;
+              break;
+          }
+          currPoint.age = projectedAge;
+        }
+        else {
+          break;
+        }
 
-      currentNetWorth += adjustedMonthlySavings * 12;
-      dataPoints.push({
-        age: projectedAge,
-        netWorth: Math.round(currentNetWorth),
-        canRetire: false
-      });
+      }
     }
+    let trimmeDataPoints = dataPoints.filter(dp => dp != null && dp.age !== 0);
 
     return {
-      canRetire: retirementAge !== null,
-      retirementAge,
-      dataPoints
+      canRetire: initialRetirementAge !== null,
+      retirementAge: initialRetirementAge,
+      dataPoints: trimmeDataPoints
     };
   }, [currentAge, inflationRate, netWorth, incomes, expenses, assets, debts]);
+
+  const checkGraphDataValidity = (dataPoints: RetirementDataPoint[]) => {
+    if (!dataPoints || dataPoints.length === 0) {
+      return false;
+    }
+    for (const point of dataPoints) {
+      if (point == null) {
+        return false;
+      }
+    }
+    return true;
+  };
 
   return (
     <div className="app">
@@ -290,7 +332,7 @@ export default function Home() {
                   placeholder="30"
                 />
               </div>
-              {/* <div className="input-row">
+              <div className="input-row">
                 <label>Inflation Rate (%):</label>
                 <input
                   type="number"
@@ -299,7 +341,7 @@ export default function Home() {
                   placeholder="3"
                   step="0.1"
                 />
-              </div> */}
+              </div>
             </section>
 
             <section className="section">
@@ -342,9 +384,6 @@ export default function Home() {
                 <div className="retirement-result success">
                   <div className="retirement-title">🎉 You can retire at age:</div>
                   <div className="retirement-age">{retirementData?.retirementAge}</div>
-                  <div className="retirement-subtext">
-                    Monthly retirement expenses: ${getActiveExpensesAtAge(parseInt(currentAge), parseInt(currentAge ?? "0")).toLocaleString()}
-                  </div>
                 </div>
               ) : (
                 <div className="retirement-result warning">
@@ -359,7 +398,7 @@ export default function Home() {
               )}
             </section>
 
-            {retirementData.dataPoints.length > 0 && (
+            {checkGraphDataValidity(retirementData.dataPoints) && (
               <section className="section">
                 <h2>Net Worth Projection</h2>
                 <ResponsiveContainer width="100%" height={300}>
@@ -379,7 +418,9 @@ export default function Home() {
                       labelFormatter={(label) => `Age: ${label}`}
                     />
                     <Legend />
-                    <Line type="monotone" dataKey="netWorth" stroke="#4CAF50" strokeWidth={2} name="Net Worth" />
+                    <Line type="monotone" dataKey="netWorth0" stroke="#4CAF50" strokeWidth={2} name="Net Worth Earliest" />
+                    <Line type="monotone" dataKey="netWorth5" stroke="#a2b9bc" strokeWidth={2} name="Net Worth +5 Retirement" />
+                    <Line type="monotone" dataKey="netWorth10" stroke="#878f99" strokeWidth={2} name="Net Worth +10 Returement" />
                   </LineChart>
                 </ResponsiveContainer>
               </section>
