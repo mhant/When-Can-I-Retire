@@ -27,43 +27,34 @@ export default function MonthlyExpensesIncome({
     const [expenseName, setExpenseName] = React.useState("");
     const [expenseValue, setExpenseValue] = React.useState("");
     const [expenseEndsAtRetirement, setExpenseEndsAtRetirement] = React.useState(false);
-    // Handler for text inputs, using the correct React event type for TypeScript
-    const handleTextChange = (e: ChangeEvent<HTMLInputElement>, setter: (value: string) => void) => {
-        setter(e.target.value);
-    };
-
-    // Handler for the checkbox
-    const handleCheckboxChange = (e: ChangeEvent<HTMLInputElement>) => {
-        setExpenseEndsAtRetirement(e.target.checked);
-    };
-
     return (
         <section className="section">
             <h2>Monthly {isExpense ? "Expenses" : "Income"} (Total: ${totalMonthlyExpenses.toLocaleString()}/mo)</h2>
             <div className="form">
                 <input
                     type="text"
-                    placeholder={(isExpense ? "Expense" : "Source of Income") + " name (e.g., Rent)"}
+                    placeholder={isExpense ? "Expense name (e.g., Rent)" : "Source of Income (e.g., Salary)"}
                     value={expenseName}
-                    onChange={(e) => handleTextChange(e, setExpenseName)}
+                    onChange={(e) => setExpenseName(e.target.value)}
                 />
                 <input
                     type="number"
                     placeholder="Monthly amount"
                     value={expenseValue}
-                    onChange={(e) => handleTextChange(e, setExpenseValue)}
+                    onChange={(e) => setExpenseValue(e.target.value)}
                 />
                 <div className="switch-row">
                     <label>
                         <input
                             type="checkbox"
                             checked={expenseEndsAtRetirement}
-                            onChange={handleCheckboxChange}
+                            onChange={(e) => setExpenseEndsAtRetirement(e.target.checked)}
                         />
                         Ends at retirement
                     </label>
                 </div>
-                <button className="add-button" onClick={() => addExpense(expenseName, expenseValue, expenseEndsAtRetirement)}>Add Expense</button>
+                <button className="add-button"
+                    onClick={() => addExpense(expenseName, expenseValue, expenseEndsAtRetirement)}>Add {isExpense ? "Expense" : "Income"}</button>
             </div>
             <div className="list">
                 {expenses.length === 0 ? (

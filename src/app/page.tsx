@@ -6,6 +6,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faDownload, faFileImport, faMagnifyingGlass, faSave } from '@fortawesome/free-solid-svg-icons';
 import { AssetDebt, IncomeExpense } from './types';
 import MonthlyExpensesIncome from './expensesIncome';
+import { Asset } from 'next/font/google';
+import AssetsDebts from './assetsDebts';
 
 export default function Home() {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -51,13 +53,9 @@ export default function Home() {
 
   // Assets
   const [assets, setAssets] = useState<AssetDebt[]>([]);
-  const [assetName, setAssetName] = useState('');
-  const [assetValue, setAssetValue] = useState('');
 
   // Debts
   const [debts, setDebts] = useState<AssetDebt[]>([]);
-  const [debtName, setDebtName] = useState('');
-  const [debtValue, setDebtValue] = useState('');
 
   // Monthly Income
   const [incomes, setIncomes] = useState<IncomeExpense[]>([]);
@@ -110,24 +108,20 @@ export default function Home() {
   };
 
   // Add functions
-  const addAsset = () => {
+  const addAsset = (assetName: string, assetValue: string) => {
     if (!assetName || !assetValue) {
       alert('Please fill in all fields');
       return;
     }
     setAssets([...assets, { id: Date.now().toString(), name: assetName, value: parseFloat(assetValue) }]);
-    setAssetName('');
-    setAssetValue('');
   };
 
-  const addDebt = () => {
+  const addDebt = (debtName: string, debtValue: string) => {
     if (!debtName || !debtValue) {
       alert('Please fill in all fields');
       return;
     }
     setDebts([...debts, { id: Date.now().toString(), name: debtName, value: parseFloat(debtValue) }]);
-    setDebtName('');
-    setDebtValue('');
   };
 
   const addIncome = (incomeName: string, incomeValue: string, incomeEndsAtRetirement: boolean) => {
@@ -394,75 +388,21 @@ export default function Home() {
         )}
 
         {activeTab === 'assets' && (
-          <section className="section">
-            <h2>Assets (Total: ${totalAssets.toLocaleString()})</h2>
-            <div className="form">
-              <input
-                type="text"
-                placeholder="Asset name (e.g., Savings Account)"
-                value={assetName}
-                onChange={(e) => setAssetName(e.target.value)}
-              />
-              <input
-                type="number"
-                placeholder="Value"
-                value={assetValue}
-                onChange={(e) => setAssetValue(e.target.value)}
-              />
-              <button className="add-button" onClick={addAsset}>Add Asset</button>
-            </div>
-            <div className="list">
-              {assets.length === 0 ? (
-                <div className="empty-text">No assets added yet</div>
-              ) : (
-                assets.map((asset) => (
-                  <div key={asset.id} className="list-item">
-                    <div className="list-item-info">
-                      <div className="list-item-name">{asset.name}</div>
-                      <div className="list-item-value positive">${asset.value.toLocaleString()}</div>
-                    </div>
-                    <button className="delete-button" onClick={() => deleteAsset(asset.id)}>×</button>
-                  </div>
-                ))
-              )}
-            </div>
-          </section>
+          <AssetsDebts
+            isAsset={true}
+            items={assets}
+            totalAssetsDebts={totalAssets}
+            addItem={addAsset}
+            deleteItem={deleteAsset} />
         )}
 
         {activeTab === 'debts' && (
-          <section className="section">
-            <h2>Debts (Total: ${totalDebts.toLocaleString()})</h2>
-            <div className="form">
-              <input
-                type="text"
-                placeholder="Debt name (e.g., Mortgage)"
-                value={debtName}
-                onChange={(e) => setDebtName(e.target.value)}
-              />
-              <input
-                type="number"
-                placeholder="Amount"
-                value={debtValue}
-                onChange={(e) => setDebtValue(e.target.value)}
-              />
-              <button className="add-button" onClick={addDebt}>Add Debt</button>
-            </div>
-            <div className="list">
-              {debts.length === 0 ? (
-                <div className="empty-text">No debts added yet</div>
-              ) : (
-                debts.map((debt) => (
-                  <div key={debt.id} className="list-item">
-                    <div className="list-item-info">
-                      <div className="list-item-name">{debt.name}</div>
-                      <div className="list-item-value negative">${debt.value.toLocaleString()}</div>
-                    </div>
-                    <button className="delete-button" onClick={() => deleteDebt(debt.id)}>×</button>
-                  </div>
-                ))
-              )}
-            </div>
-          </section>
+          <AssetsDebts
+            isAsset={false}
+            items={debts}
+            totalAssetsDebts={totalDebts}
+            addItem={addDebt}
+            deleteItem={deleteDebt} />
         )}
 
         {activeTab === 'income' && (
