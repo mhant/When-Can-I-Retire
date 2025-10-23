@@ -382,8 +382,8 @@ export default function Home() {
                 <label>Life Expectancy:</label>
                 <input
                   type="number"
-                  value={maxAge ?? ''}
-                  onChange={(e) => setMaxAge(parseInt(e.target.value))}
+                  value={maxAge.toString()}
+                  onChange={(e) => setMaxAge(parseInt(e.target.value) ?? 110)}
                   placeholder="110"
                   step="5"
                 />
