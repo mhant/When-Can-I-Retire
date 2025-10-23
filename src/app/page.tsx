@@ -33,6 +33,8 @@ export default function Home() {
     setDebts(data.debts || []);
     setIncomes(data.incomes || []);
     setExpenses(data.expenses || []);
+    setMaxAge(data.maxAge || 110);
+    setSavingsInterest(data.savingsInterest || '3');
   }
 
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -57,6 +59,8 @@ export default function Home() {
   // User profile
   const [currentAge, setCurrentAge] = useState('30');
   const [inflationRate, setInflationRate] = useState('3');
+  const [maxAge, setMaxAge] = useState(110);
+  const [savingsInterest, setSavingsInterest] = useState('3');
 
   // Assets
   const [assets, setAssets] = useState<AssetDebt[]>([]);
@@ -73,7 +77,7 @@ export default function Home() {
   const [activeTab, setActiveTab] = useState('overview');
   const [isLoading, setIsLoading] = useState(true);
 
-  const [maxAge, setMaxAge] = useState(110);
+
 
   // Load data from localStorage on mount
   useEffect(() => {
@@ -85,7 +89,7 @@ export default function Home() {
     if (!isLoading) {
       saveData();
     }
-  }, [currentAge, inflationRate, assets, debts, incomes, expenses, isLoading]);
+  }, [currentAge, inflationRate, assets, debts, incomes, expenses, isLoading, savingsInterest, maxAge]);
 
   const loadData = () => {
     try {
@@ -108,7 +112,9 @@ export default function Home() {
         assets,
         debts,
         incomes,
-        expenses
+        expenses,
+        savingsInterest,
+        maxAge
       };
       localStorage.setItem('retirementData', JSON.stringify(data));
     } catch (error) {
@@ -192,9 +198,10 @@ export default function Home() {
   };
 
   // Calculate retirement projection
-  const retirementData = (currentAge: string, inflationRate: string, netWorth: number, totalMonthlyExpenses: number, totalDebts: number, incomes: IncomeExpense[], expenses: IncomeExpense[], maxAge: number) => {
+  const retirementData = (currentAge: string, inflationRate: string, netWorth: number, totalMonthlyExpenses: number, totalDebts: number, incomes: IncomeExpense[], expenses: IncomeExpense[], maxAge: number, savingsInterest: string) => {
     const age = parseInt(currentAge) || 30;
     const inflation = (parseFloat(inflationRate) || 3) / 100;
+    const interest = (parseFloat(savingsInterest) || 3) / 100;
     const returnBadData = {
       canRetire: false,
       retirementAge: null,
@@ -210,17 +217,20 @@ export default function Home() {
     const baseCost = (totalMonthlyExpenses) * 12;
     const yearsToMaxAge = maxAge - age;
     const baseCostWithInflation = baseCost * (
-      ((Math.pow(1 + inflation, yearsToMaxAge) - 1) / inflation) *
+      ((Math.pow(1 + inflation - interest, yearsToMaxAge) - 1) / inflation) *
       (1 + inflation)
     );
     var retirementAge = Math.ceil(
       (
-        (baseCostWithInflation) -
-        (currentNetWorth - totalDebts)
+        baseCostWithInflation - (currentNetWorth - totalDebts)
       )
       /
       ((totalMonthlyIncome) * 12)
-    ) + age;
+    );
+    if (retirementAge < 0) {
+      retirementAge = 0;
+    }
+    retirementAge += age;
     if (retirementAge > maxAge) {
       return returnBadData;
     }
@@ -236,6 +246,7 @@ export default function Home() {
         const activeExpenses = getActiveExpensesAtAge(projectedAge, year, retirementAge, inflation, expenses);
         const adjustedMonthlySavings = activeIncome - activeExpenses;
         currentTotalWorth += adjustedMonthlySavings * 12;
+        currentTotalWorth *= (1 + interest);
         let currPoint = dataPoints[year];
         if (currentTotalWorth > 0) {
           switch (i) {
@@ -281,7 +292,7 @@ export default function Home() {
     return true;
   };
 
-  var graphData = retirementData(currentAge, inflationRate, netWorth, totalMonthlyExpenses, totalDebts, incomes, expenses, maxAge);
+  var graphData = retirementData(currentAge, inflationRate, netWorth, totalMonthlyExpenses, totalDebts, incomes, expenses, maxAge, savingsInterest);
 
   return (
     <div className="app">
@@ -296,7 +307,9 @@ export default function Home() {
             assets,
             debts,
             incomes,
-            expenses
+            expenses,
+            savingsInterest,
+            maxAge
           }, null, 2);
           const blob = new Blob([dataStr], { type: "application/json" });
           const url = URL.createObjectURL(blob);
@@ -348,6 +361,13 @@ export default function Home() {
                   onChange={(e) => setCurrentAge(e.target.value)}
                   placeholder="30"
                 />
+                <label>Savings Interest:</label>
+                <input
+                  type="number"
+                  value={savingsInterest}
+                  onChange={(e) => setSavingsInterest(e.target.value)}
+                  placeholder="3"
+                />
               </div>
               {/* Create two inputs one for inflation and the other for max age*/}
               <div className="input-row">
@@ -359,7 +379,7 @@ export default function Home() {
                   placeholder="3"
                   step="0.1"
                 />
-                <label>Life Expectancy</label>
+                <label>Life Expectancy:</label>
                 <input
                   type="number"
                   value={maxAge ?? ''}
