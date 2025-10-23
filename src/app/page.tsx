@@ -73,6 +73,8 @@ export default function Home() {
   const [activeTab, setActiveTab] = useState('overview');
   const [isLoading, setIsLoading] = useState(true);
 
+  const [maxAge, setMaxAge] = useState(110);
+
   // Load data from localStorage on mount
   useEffect(() => {
     loadData();
@@ -174,14 +176,14 @@ export default function Home() {
   const monthlySavings = totalMonthlyIncome - totalMonthlyExpenses;
 
   // Calculate active income/expenses at a given age
-  const getActiveIncomeAtAge = (age: number, retirementAge: number | null = null) => {
+  const getActiveIncomeAtAge = (age: number, retirementAge: number | null = null, incomes: IncomeExpense[]) => {
     return incomes.reduce((sum, income) => {
       if (income.endsAtRetirement && retirementAge && age > retirementAge) return sum;
       return sum + income.value;
     }, 0);
   };
 
-  const getActiveExpensesAtAge = (age: number, years: number, retirementAge: number | null = null, inflation: number | null) => {
+  const getActiveExpensesAtAge = (age: number, years: number, retirementAge: number | null = null, inflation: number | null, expenses: IncomeExpense[]) => {
     return expenses.reduce((sum, expense) => {
       const inflationEst = (inflation ? Math.pow(inflation + 1, years) : 1)
       if (expense.endsAtRetirement && retirementAge && age > retirementAge) return sum * inflationEst;
@@ -190,35 +192,48 @@ export default function Home() {
   };
 
   // Calculate retirement projection
-  const retirementData = useMemo(() => {
+  const retirementData = (currentAge: string, inflationRate: string, netWorth: number, totalMonthlyExpenses: number, totalDebts: number, incomes: IncomeExpense[], expenses: IncomeExpense[], maxAge: number) => {
     const age = parseInt(currentAge) || 30;
     const inflation = (parseFloat(inflationRate) || 3) / 100;
-
+    const returnBadData = {
+      canRetire: false,
+      retirementAge: null,
+      dataPoints: []
+    }
     var currentNetWorth = netWorth;
     var projectedAge = age;
-    const maxAge = 110;
+    if (!maxAge || maxAge <= age) {
+      return returnBadData;
+    }
     const dataPoints: RetirementDataPoint[] = new Array<RetirementDataPoint | undefined>(maxAge - age + 21).fill(undefined).map((_, i) => ({ age: 0, netWorth0: 0, netWorth5: 0, netWorth10: 0, netWorth15: 0 }));
 
     const baseCost = (totalMonthlyExpenses) * 12;
     const yearsToMaxAge = maxAge - age;
-    // const baseCostWithInflation = baseCost * yearsToMaxAge * (Math.pow(1 + inflation, yearsToMaxAge / 10));
+    const baseCostWithInflation = baseCost * (
+      ((Math.pow(1 + inflation, yearsToMaxAge) - 1) / inflation) *
+      (1 + inflation)
+    );
     var retirementAge = Math.ceil(
       (
-        (baseCost * yearsToMaxAge) -
+        (baseCostWithInflation) -
         (currentNetWorth - totalDebts)
       )
       /
       ((totalMonthlyIncome) * 12)
     ) + age;
+    if (retirementAge > maxAge) {
+      return returnBadData;
+    }
     const initialRetirementAge = retirementAge;
+    retirementAge -= 5;
     for (let i = 0; i < 4; i++) {
       retirementAge += 5;
       let currentTotalWorth = (currentNetWorth - totalDebts);
       projectedAge = age;
       for (let year = 0; projectedAge <= maxAge; year++) {
         projectedAge++;
-        const activeIncome = getActiveIncomeAtAge(projectedAge, retirementAge);
-        const activeExpenses = getActiveExpensesAtAge(projectedAge, year, retirementAge, inflation);
+        const activeIncome = getActiveIncomeAtAge(projectedAge, retirementAge, incomes);
+        const activeExpenses = getActiveExpensesAtAge(projectedAge, year, retirementAge, inflation, expenses);
         const adjustedMonthlySavings = activeIncome - activeExpenses;
         currentTotalWorth += adjustedMonthlySavings * 12;
         let currPoint = dataPoints[year];
@@ -252,7 +267,7 @@ export default function Home() {
       retirementAge: initialRetirementAge,
       dataPoints: trimmeDataPoints
     };
-  }, [currentAge, inflationRate, netWorth, incomes, expenses, assets, debts]);
+  };
 
   const checkGraphDataValidity = (dataPoints: RetirementDataPoint[]) => {
     if (!dataPoints || dataPoints.length === 0) {
@@ -265,6 +280,8 @@ export default function Home() {
     }
     return true;
   };
+
+  var graphData = retirementData(currentAge, inflationRate, netWorth, totalMonthlyExpenses, totalDebts, incomes, expenses, maxAge);
 
   return (
     <div className="app">
@@ -332,6 +349,7 @@ export default function Home() {
                   placeholder="30"
                 />
               </div>
+              {/* Create two inputs one for inflation and the other for max age*/}
               <div className="input-row">
                 <label>Inflation Rate (%):</label>
                 <input
@@ -340,6 +358,14 @@ export default function Home() {
                   onChange={(e) => setInflationRate(e.target.value)}
                   placeholder="3"
                   step="0.1"
+                />
+                <label>Life Expectancy</label>
+                <input
+                  type="number"
+                  value={maxAge ?? ''}
+                  onChange={(e) => setMaxAge(parseInt(e.target.value))}
+                  placeholder="110"
+                  step="5"
                 />
               </div>
             </section>
@@ -380,10 +406,10 @@ export default function Home() {
 
             <section className="section">
               <h2>Retirement Projection</h2>
-              {retirementData && retirementData.canRetire && retirementData?.retirementAge ? (
+              {graphData.canRetire && graphData?.retirementAge ? (
                 <div className="retirement-result success">
                   <div className="retirement-title">🎉 You can retire at age:</div>
-                  <div className="retirement-age">{retirementData?.retirementAge}</div>
+                  <div className="retirement-age">{graphData?.retirementAge}</div>
                 </div>
               ) : (
                 <div className="retirement-result warning">
@@ -398,11 +424,11 @@ export default function Home() {
               )}
             </section>
 
-            {checkGraphDataValidity(retirementData.dataPoints) && (
+            {checkGraphDataValidity(graphData.dataPoints) && (
               <section className="section">
                 <h2>Net Worth Projection</h2>
                 <ResponsiveContainer width="100%" height={300}>
-                  <LineChart data={retirementData.dataPoints}>
+                  <LineChart data={graphData.dataPoints}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="age" label={{ value: 'Age', position: 'insideBottom', offset: -5 }} />
                     <YAxis
@@ -419,8 +445,9 @@ export default function Home() {
                     />
                     <Legend />
                     <Line type="monotone" dataKey="netWorth0" stroke="#4CAF50" strokeWidth={2} name="Net Worth Earliest" />
-                    <Line type="monotone" dataKey="netWorth5" stroke="#a2b9bc" strokeWidth={2} name="Net Worth +5 Retirement" />
-                    <Line type="monotone" dataKey="netWorth10" stroke="#878f99" strokeWidth={2} name="Net Worth +10 Returement" />
+                    <Line type="monotone" dataKey="netWorth5" stroke="#a2b9bc" strokeWidth={2} name="+5Y Retirement" />
+                    <Line type="monotone" dataKey="netWorth10" stroke="#3A6EA5" strokeWidth={2} name="+10Y Retirement" />
+                    <Line type="monotone" dataKey="netWorth15" stroke="#FF6700" strokeWidth={2} name="+15Y Retirement" />
                   </LineChart>
                 </ResponsiveContainer>
               </section>
