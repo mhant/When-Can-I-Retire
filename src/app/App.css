@@ -73,12 +73,14 @@
 .input-row label {
     width: 150px;
     margin-right: 12px;
+    border: 1px solid #222;
+    border-radius: 4px;
 }
 
 .input-row input {
     flex: 1;
     padding: 8px;
-    border: 1px solid #ddd;
+    border: 1px solid #222;
     border-radius: 4px;
     font-size: 16px;
 }
@@ -93,6 +95,13 @@
     padding: 16px;
     background-color: #f9f9f9;
     border-radius: 8px;
+    border: 1px solid #222;
+    border-radius: 4px;
+}
+
+.boxy {
+    border: 3px ridge #222;
+    border-radius: 4px;
 }
 
 .summary-label {
@@ -139,6 +148,27 @@
     font-size: 32px;
     font-weight: bold;
     color: #4CAF50;
+    margin: 8px 0;
+}
+
+.retirement-age-plus-five {
+    font-size: 32px;
+    font-weight: bold;
+    color: #a2b9bc;
+    margin: 8px 0;
+}
+
+.retirement-age-plus-ten {
+    font-size: 32px;
+    font-weight: bold;
+    color: #3A6EA5;
+    margin: 8px 0;
+}
+
+.retirement-age-plus-fifteen {
+    font-size: 32px;
+    font-weight: bold;
+    color: #FF6700;
     margin: 8px 0;
 }
 
@@ -260,6 +290,13 @@ body {
     color: #c62828;
 }
 
+.input-row>* {
+    /* Common styling for all items */
+    padding: 10px 15px;
+    background-color: #f7f7f7;
+    border-radius: 4px;
+}
+
 @media (max-width: 768px) {
     .tab-container {
         overflow-x: auto;
@@ -282,5 +319,6 @@ body {
     .input-row label {
         width: 100%;
         margin-bottom: 4px;
+        border: #000;
     }
 }

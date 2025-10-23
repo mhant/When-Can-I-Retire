@@ -428,8 +428,13 @@ export default function Home() {
               <h2>Retirement Projection</h2>
               {graphData.canRetire && graphData?.retirementAge ? (
                 <div className="retirement-result success">
-                  <div className="retirement-title">🎉 You can retire at age:</div>
-                  <div className="retirement-age">{graphData?.retirementAge}</div>
+                  <div className="retirement-title">Estimating Retirements At:</div>
+                  <div className="input-row">
+                    <div className="retirement-age boxy">{graphData?.retirementAge}</div>
+                    <div className="retirement-age-plus-five boxy">{graphData?.retirementAge + 5}</div>
+                    <div className="retirement-age-plus-ten boxy">{graphData?.retirementAge + 10}</div>
+                    <div className="retirement-age-plus-fifteen boxy">{graphData?.retirementAge + 15}</div>
+                  </div>
                 </div>
               ) : (
                 <div className="retirement-result warning">
