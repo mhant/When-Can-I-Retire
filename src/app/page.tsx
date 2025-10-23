@@ -55,7 +55,7 @@ export default function Home() {
     }
 
     // Reset the input value so the same file can be imported again
-    event.target.value = null;
+    event.target.value = "";
   };
   // User profile
   const [currentAge, setCurrentAge] = useState('30');
