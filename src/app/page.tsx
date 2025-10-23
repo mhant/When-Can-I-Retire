@@ -4,19 +4,8 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsi
 import './App.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faDownload, faFileImport, faMagnifyingGlass, faSave } from '@fortawesome/free-solid-svg-icons';
-
-interface AssetDebt {
-  id: string;
-  name: string;
-  value: number;
-}
-
-interface IncomeExpense {
-  id: string;
-  name: string;
-  value: number;
-  endsAtRetirement: boolean;
-}
+import { AssetDebt, IncomeExpense } from './types';
+import MonthlyExpensesIncome from './expensesIncome';
 
 export default function Home() {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -72,17 +61,9 @@ export default function Home() {
 
   // Monthly Income
   const [incomes, setIncomes] = useState<IncomeExpense[]>([]);
-  const [incomeName, setIncomeName] = useState('');
-  const [incomeValue, setIncomeValue] = useState('');
-  const [incomeEndAge, setIncomeEndAge] = useState('');
-  const [incomeEndsAtRetirement, setIncomeEndsAtRetirement] = useState(false);
 
   // Monthly Expenses
   const [expenses, setExpenses] = useState<IncomeExpense[]>([]);
-  const [expenseName, setExpenseName] = useState('');
-  const [expenseValue, setExpenseValue] = useState('');
-  const [expenseEndAge, setExpenseEndAge] = useState('');
-  const [expenseEndsAtRetirement, setExpenseEndsAtRetirement] = useState(false);
 
   const [activeTab, setActiveTab] = useState('overview');
   const [isLoading, setIsLoading] = useState(true);
@@ -149,7 +130,7 @@ export default function Home() {
     setDebtValue('');
   };
 
-  const addIncome = () => {
+  const addIncome = (incomeName: string, incomeValue: string, incomeEndsAtRetirement: boolean) => {
     if (!incomeName || !incomeValue) {
       alert('Please fill in all fields');
       return;
@@ -158,17 +139,12 @@ export default function Home() {
       id: Date.now().toString(),
       name: incomeName,
       value: parseFloat(incomeValue),
-      endAge: incomeEndAge ? parseInt(incomeEndAge) : null,
       endsAtRetirement: incomeEndsAtRetirement
     };
     setIncomes([...incomes, newIncome]);
-    setIncomeName('');
-    setIncomeValue('');
-    setIncomeEndAge('');
-    setIncomeEndsAtRetirement(false);
   };
 
-  const addExpense = () => {
+  const addExpense = (expenseName: string, expenseValue: string, endsAtRetirement: boolean) => {
     if (!expenseName || !expenseValue) {
       alert('Please fill in all fields');
       return;
@@ -177,14 +153,9 @@ export default function Home() {
       id: Date.now().toString(),
       name: expenseName,
       value: parseFloat(expenseValue),
-      endAge: expenseEndAge ? parseInt(expenseEndAge) : null,
-      endsAtRetirement: expenseEndsAtRetirement
+      endsAtRetirement: endsAtRetirement
     };
     setExpenses([...expenses, newExpense]);
-    setExpenseName('');
-    setExpenseValue('');
-    setExpenseEndAge('');
-    setExpenseEndsAtRetirement(false);
   };
 
   // Delete functions
@@ -495,101 +466,21 @@ export default function Home() {
         )}
 
         {activeTab === 'income' && (
-          <section className="section">
-            <h2>Monthly Income (Total: ${totalMonthlyIncome.toLocaleString()}/mo)</h2>
-            <div className="form">
-              <input
-                type="text"
-                placeholder="Income source (e.g., Salary)"
-                value={incomeName}
-                onChange={(e) => setIncomeName(e.target.value)}
-              />
-              <input
-                type="number"
-                placeholder="Monthly amount"
-                value={incomeValue}
-                onChange={(e) => setIncomeValue(e.target.value)}
-              />
-              <div className="switch-row">
-                <label>
-                  <input
-                    type="checkbox"
-                    checked={incomeEndsAtRetirement}
-                    onChange={(e) => setIncomeEndsAtRetirement(e.target.checked)}
-                  />
-                  Ends at retirement
-                </label>
-              </div>
-              <button className="add-button" onClick={addIncome}>Add Income</button>
-            </div>
-            <div className="list">
-              {incomes.length === 0 ? (
-                <div className="empty-text">No income sources added yet</div>
-              ) : (
-                incomes.map((income) => (
-                  <div key={income.id} className="list-item">
-                    <div className="list-item-info">
-                      <div className="list-item-name">{income.name}</div>
-                      <div className="list-item-value positive">${income.value.toLocaleString()}/mo</div>
-                      {income.endsAtRetirement && (
-                        <div className="list-item-detail">Ends at retirement</div>
-                      )}
-                    </div>
-                    <button className="delete-button" onClick={() => deleteIncome(income.id)}>×</button>
-                  </div>
-                ))
-              )}
-            </div>
-          </section>
+          <MonthlyExpensesIncome
+            isExpense={false}
+            totalMonthlyExpenses={totalMonthlyIncome}
+            expenses={incomes}
+            addExpense={addIncome}
+            deleteExpense={deleteIncome} />
         )}
 
         {activeTab === 'expenses' && (
-          <section className="section">
-            <h2>Monthly Expenses (Total: ${totalMonthlyExpenses.toLocaleString()}/mo)</h2>
-            <div className="form">
-              <input
-                type="text"
-                placeholder="Expense name (e.g., Rent)"
-                value={expenseName}
-                onChange={(e) => setExpenseName(e.target.value)}
-              />
-              <input
-                type="number"
-                placeholder="Monthly amount"
-                value={expenseValue}
-                onChange={(e) => setExpenseValue(e.target.value)}
-              />
-              <div className="switch-row">
-                <label>
-                  <input
-                    type="checkbox"
-                    checked={expenseEndsAtRetirement}
-                    onChange={(e) => setExpenseEndsAtRetirement(e.target.checked)}
-                  />
-                  Ends at retirement
-                </label>
-              </div>
-              <button className="add-button" onClick={addExpense}>Add Expense</button>
-            </div>
-            <div className="list">
-              {expenses.length === 0 ? (
-                <div className="empty-text">No expenses added yet</div>
-              ) : (
-                expenses.map((expense) => (
-                  <div key={expense.id} className="list-item">
-                    <div className="list-item-info">
-                      <div className="list-item-name">{expense.name}</div>
-                      <div className="list-item-value negative">${expense.value.toLocaleString()}/mo</div>
-                      {expense.endsAtRetirement && (
-                        <div className="list-item-detail">Ends at retirement</div>
-                      )}
-                    </div>
-                    <button className="delete-button" onClick={() => deleteExpense(expense.id)}>×</button>
-                  </div>
-                ))
-              )}
-            </div>
-          </section>
+          <MonthlyExpensesIncome
+            isExpense={true}
+            totalMonthlyExpenses={totalMonthlyExpenses}
+            expenses={expenses}
+            addExpense={addExpense}
+            deleteExpense={deleteExpense} />
         )}
       </main>
     </div>
