@@ -33,7 +33,7 @@ export default function Home() {
     setDebts(data.debts || []);
     setIncomes(data.incomes || []);
     setExpenses(data.expenses || []);
-    setMaxAge(data.maxAge || 110);
+    setRetirementAge(data.maxAge || 110);
     setSavingsInterest(data.savingsInterest || '3');
   }
 
@@ -59,7 +59,7 @@ export default function Home() {
   // User profile
   const [currentAge, setCurrentAge] = useState('30');
   const [inflationRate, setInflationRate] = useState('3');
-  const [maxAge, setMaxAge] = useState(110);
+  const [retirementAge, setRetirementAge] = useState(110);
   const [savingsInterest, setSavingsInterest] = useState('3');
 
   // Assets
@@ -89,7 +89,7 @@ export default function Home() {
     if (!isLoading) {
       saveData();
     }
-  }, [currentAge, inflationRate, assets, debts, incomes, expenses, isLoading, savingsInterest, maxAge]);
+  }, [currentAge, inflationRate, assets, debts, incomes, expenses, isLoading, savingsInterest, retirementAge]);
 
   const loadData = () => {
     try {
@@ -114,7 +114,7 @@ export default function Home() {
         incomes,
         expenses,
         savingsInterest,
-        maxAge
+        retirementAge
       };
       localStorage.setItem('retirementData', JSON.stringify(data));
     } catch (error) {
@@ -198,44 +198,17 @@ export default function Home() {
   };
 
   // Calculate retirement projection
-  const retirementData = (currentAge: string, inflationRate: string, netWorth: number, totalMonthlyExpenses: number, totalDebts: number, incomes: IncomeExpense[], expenses: IncomeExpense[], maxAge: number, savingsInterest: string) => {
+  const retirementData = (currentAge: string, inflationRate: string, netWorth: number, totalMonthlyExpenses: number, totalDebts: number, incomes: IncomeExpense[], expenses: IncomeExpense[], retirementAge: number, savingsInterest: string) => {
     const age = parseInt(currentAge) || 30;
     const inflation = (parseFloat(inflationRate) || 3) / 100;
     const interest = (parseFloat(savingsInterest) || 3) / 100;
-    const returnBadData = {
-      canRetire: false,
-      retirementAge: null,
-      dataPoints: []
-    }
     var currentNetWorth = netWorth;
     var projectedAge = age;
-    if (!maxAge || maxAge <= age) {
-      return returnBadData;
-    }
+    const maxAge = 120;
     const dataPoints: RetirementDataPoint[] = new Array<RetirementDataPoint | undefined>(maxAge - age + 21).fill(undefined).map((_, i) => ({ age: 0, netWorth0: 0, netWorth5: 0, netWorth10: 0, netWorth15: 0 }));
 
-    const baseCost = (totalMonthlyExpenses) * 12;
-    const yearsToMaxAge = maxAge - age;
-    const baseCostWithInflation = baseCost * (
-      ((Math.pow(1 + inflation - interest, yearsToMaxAge) - 1) / inflation) *
-      (1 + inflation)
-    );
-    var retirementAge = Math.ceil(
-      (
-        baseCostWithInflation - (currentNetWorth - totalDebts)
-      )
-      /
-      ((totalMonthlyIncome) * 12)
-    );
-    if (retirementAge < 0) {
-      retirementAge = 0;
-    }
-    retirementAge += age;
-    if (retirementAge > maxAge) {
-      return returnBadData;
-    }
     const initialRetirementAge = retirementAge;
-    retirementAge -= 5;
+    retirementAge -= 10;
     for (let i = 0; i < 4; i++) {
       retirementAge += 5;
       let currentTotalWorth = (currentNetWorth - totalDebts);
@@ -292,7 +265,7 @@ export default function Home() {
     return true;
   };
 
-  var graphData = retirementData(currentAge, inflationRate, netWorth, totalMonthlyExpenses, totalDebts, incomes, expenses, maxAge, savingsInterest);
+  var graphData = retirementData(currentAge, inflationRate, netWorth, totalMonthlyExpenses, totalDebts, incomes, expenses, retirementAge, savingsInterest);
 
   return (
     <div className="app">
@@ -309,7 +282,7 @@ export default function Home() {
             incomes,
             expenses,
             savingsInterest,
-            maxAge
+            retirementAge
           }, null, 2);
           const blob = new Blob([dataStr], { type: "application/json" });
           const url = URL.createObjectURL(blob);
@@ -379,11 +352,11 @@ export default function Home() {
                   placeholder="3"
                   step="0.1"
                 />
-                <label>Life Expectancy:</label>
+                <label>Retirement Age for Simulation:</label>
                 <input
                   type="number"
-                  value={maxAge.toString()}
-                  onChange={(e) => setMaxAge(parseInt(e.target.value) ?? 110)}
+                  value={retirementAge.toString()}
+                  onChange={(e) => setRetirementAge(parseInt(e.target.value) ?? 110)}
                   placeholder="110"
                   step="5"
                 />
@@ -469,10 +442,10 @@ export default function Home() {
                       labelFormatter={(label) => `Age: ${label}`}
                     />
                     <Legend />
-                    <Line type="monotone" dataKey="netWorth0" stroke="#4CAF50" strokeWidth={2} name="Net Worth Earliest" />
-                    <Line type="monotone" dataKey="netWorth5" stroke="#a2b9bc" strokeWidth={2} name="+5Y Retirement" />
-                    <Line type="monotone" dataKey="netWorth10" stroke="#3A6EA5" strokeWidth={2} name="+10Y Retirement" />
-                    <Line type="monotone" dataKey="netWorth15" stroke="#FF6700" strokeWidth={2} name="+15Y Retirement" />
+                    <Line type="monotone" dataKey="netWorth0" stroke="#4CAF50" strokeWidth={2} name="Retire 5 years early" />
+                    <Line type="monotone" dataKey="netWorth5" stroke="#a2b9bc" strokeWidth={2} name="Target Retirement" />
+                    <Line type="monotone" dataKey="netWorth10" stroke="#3A6EA5" strokeWidth={2} name="Target Retirement + 5" />
+                    <Line type="monotone" dataKey="netWorth15" stroke="#FF6700" strokeWidth={2} name="Target Retirement + 5" />
                   </LineChart>
                 </ResponsiveContainer>
               </section>
