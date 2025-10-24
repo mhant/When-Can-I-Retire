@@ -33,7 +33,7 @@ export default function Home() {
     setDebts(data.debts || []);
     setIncomes(data.incomes || []);
     setExpenses(data.expenses || []);
-    setRetirementAge(data.maxAge || 110);
+    setRetirementAge(data.retirementAge || 70);
     setSavingsInterest(data.savingsInterest || '3');
   }
 
@@ -59,7 +59,7 @@ export default function Home() {
   // User profile
   const [currentAge, setCurrentAge] = useState('30');
   const [inflationRate, setInflationRate] = useState('3');
-  const [retirementAge, setRetirementAge] = useState(110);
+  const [retirementAge, setRetirementAge] = useState(70);
   const [savingsInterest, setSavingsInterest] = useState('3');
 
   // Assets
@@ -356,9 +356,9 @@ export default function Home() {
                 <input
                   type="number"
                   value={retirementAge.toString()}
-                  onChange={(e) => setRetirementAge(parseInt(e.target.value) ?? 110)}
-                  placeholder="110"
-                  step="5"
+                  onChange={(e) => setRetirementAge(parseInt(e.target.value) ?? 70)}
+                  placeholder="70"
+                  step="1"
                 />
               </div>
             </section>
