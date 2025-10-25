@@ -7,6 +7,7 @@ import { faDownload, faFileImport, faMagnifyingGlass, faSave } from '@fortawesom
 import { AssetDebt, IncomeExpense } from './types';
 import MonthlyExpensesIncome from './expensesIncome';
 import AssetsDebts from './assetsDebts';
+import BudgetAnalysis from './budgetAnalysis';
 
 interface RetirementDataPoint {
   age: number;
@@ -307,6 +308,9 @@ export default function Home() {
         <button className={`tab ${activeTab === 'overview' ? 'active' : ''}`} onClick={() => setActiveTab('overview')}>
           Overview
         </button>
+        <button className={`tab ${activeTab === 'budget_analysis' ? 'active' : ''}`} onClick={() => setActiveTab('budget_analysis')}>
+          Budget Analysis
+        </button>
         <button className={`tab ${activeTab === 'assets' ? 'active' : ''}`} onClick={() => setActiveTab('assets')}>
           Assets
         </button>
@@ -403,10 +407,10 @@ export default function Home() {
                 <div className="retirement-result success">
                   <div className="retirement-title">Estimating Retirements At:</div>
                   <div className="input-row">
-                    <div className="retirement-age boxy">{graphData?.retirementAge}</div>
-                    <div className="retirement-age-plus-five boxy">{graphData?.retirementAge + 5}</div>
-                    <div className="retirement-age-plus-ten boxy">{graphData?.retirementAge + 10}</div>
-                    <div className="retirement-age-plus-fifteen boxy">{graphData?.retirementAge + 15}</div>
+                    <div className="retirement-age boxy">{graphData?.retirementAge - 5}</div>
+                    <div className="retirement-age-plus-five boxy">{graphData?.retirementAge}</div>
+                    <div className="retirement-age-plus-ten boxy">{graphData?.retirementAge + 5}</div>
+                    <div className="retirement-age-plus-fifteen boxy">{graphData?.retirementAge + 10}</div>
                   </div>
                 </div>
               ) : (
@@ -452,6 +456,12 @@ export default function Home() {
             )}
           </div>
         )}
+
+        {activeTab === 'budget_analysis' && (
+          <BudgetAnalysis
+            addExpense={addExpense}
+            addIncome={addIncome} />)
+        }
 
         {activeTab === 'assets' && (
           <AssetsDebts
