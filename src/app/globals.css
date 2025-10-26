@@ -5,12 +5,6 @@
   --foreground: #171717;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
 
 @media (prefers-color-scheme: light) {
   :root {
@@ -27,38 +21,27 @@ body {
 }
 
 .button-container {
-  /* Layout and Sizing */
   display: flex;
   gap: 10px;
   padding: 10px;
 }
 
 .export-button {
-  /* Vertically center icon and text */
   justify-content: center;
   padding: 10px 20px;
   border: none;
   border-radius: 5px;
-  /* Rounded corners */
   cursor: pointer;
 
-  /* Color and Background */
   background-color: #4CAF50;
-  /* A standard green, signifying "go/export" */
   color: white;
 
-  /* Typography */
   font-family: Arial, sans-serif;
   font-size: 16px;
   font-weight: bold;
   text-decoration: none;
-  /* In case it's an anchor tag (<a>) */
-
-  /* Effects and Polish */
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  /* Subtle shadow for depth */
   transition: background-color 0.3s ease, transform 0.1s ease;
-  /* Smooth transitions */
 }
 
 .export-button:hover {

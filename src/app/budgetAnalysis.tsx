@@ -2,6 +2,9 @@ import { faCalculator } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Papa from 'papaparse';
 import React from 'react';
+import { DataGrid, GridColDef } from '@mui/x-data-grid';
+
+type RawDataRow = Record<string, any>;
 
 interface BudgetAnalysisProps {
     addExpense: (expenseName: string, expenseValue: string, endsAtRetirement: boolean) => void;
@@ -12,6 +15,8 @@ export default function BudgetAnalysis({ addExpense, addIncome }: BudgetAnalysis
     const [parsedData, setParsedData] = React.useState<any>([]);
     const [columnSelection, setColumnSelection] = React.useState<{ [key: string]: string }>({});
     const categoryOptions = ["N/A", "date", "income", "expense"];
+    const [columns, setColumns] = React.useState<GridColDef[]>([]);
+    const [data, setData] = React.useState<Array<Record<string, any>>>([]);
 
     const computeExpensesIncomeFromCSV = () => {
         var totalIncome = 0;
@@ -29,7 +34,7 @@ export default function BudgetAnalysis({ addExpense, addIncome }: BudgetAnalysis
             alert("Please select columns for income, expenses, and date.");
             return;
         }
-        parsedData.data.forEach((row: any) => {
+        data.forEach((row: any) => {
             Object.entries(columnSelection).forEach(([header, category]) => {
                 const rowValue: string = row[header];
                 if (category === "income") {
@@ -76,6 +81,14 @@ export default function BudgetAnalysis({ addExpense, addIncome }: BudgetAnalysis
         `;
     };
 
+    const handleProcessRowUpdate = (newRow: RawDataRow, oldRow: RawDataRow) => {
+        const updatedData = data.map(row =>
+            row.id === newRow.id ? newRow : row
+        );
+        setData(updatedData);
+        return newRow;
+    };
+
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
         const outputDiv = document.getElementById('output') as HTMLDivElement;
@@ -91,12 +104,15 @@ export default function BudgetAnalysis({ addExpense, addIncome }: BudgetAnalysis
                 skipEmptyLines: true,
                 dynamicTyping: false,
                 complete: (results) => {
-                    console.log("Parsed data:", results.data);
-                    console.log("Errors:", results.errors);
-                    console.log("Meta:", results.meta);
-
-                    // Display the headers with a row, with drop down selectors next to each if they are the date, income, or expense column
                     setParsedData(results);
+                    const processedRows = results.data.map((row, index) => {
+                        const rowObject = row as RawDataRow;
+                        return {
+                            id: index, // Add a unique ID for the DataGrid
+                            ...rowObject
+                        }
+                    });
+                    setData(processedRows);
                     results.meta.fields?.forEach((header: string) => {
                         const itemContainer = document.createElement('div');
                         itemContainer.classList.add('item-row');
@@ -106,6 +122,8 @@ export default function BudgetAnalysis({ addExpense, addIncome }: BudgetAnalysis
                         const select = document.createElement('select');
                         select.id = `select-${header}`;
                         setColumnSelection(prev => ({ ...prev, [header]: "N/A" }));
+                        var columnObj: GridColDef = { field: header, headerName: header, width: 150, editable: true };
+                        setColumns(prev => ([...prev, columnObj]));
                         categoryOptions.forEach(optionText => {
                             const option = document.createElement('option');
                             option.value = optionText;
@@ -155,6 +173,23 @@ export default function BudgetAnalysis({ addExpense, addIncome }: BudgetAnalysis
                 {Object.entries(columnSelection).map(([header, category]) => (
                     category != "N/A" && <p key={header}>{header}: {category}</p>
                 ))}
+            </div>
+            <h3>Editable Rows and compute at the bottom</h3>
+            <div style={{ visibility: parsedData.length === 0 ? "hidden" : "visible", marginTop: '1em' }}>
+                <DataGrid
+                    rows={data}
+                    columns={columns}
+                    processRowUpdate={handleProcessRowUpdate}
+                    onProcessRowUpdateError={(error) => console.error(error)}
+                    pageSizeOptions={[5, 10, 25]}
+                    initialState={{
+                        pagination: {
+                            paginationModel: {
+                                pageSize: 5,
+                            },
+                        },
+                    }}
+                />
             </div>
             <button className="calculate-button" onClick={computeExpensesIncomeFromCSV} style={{ visibility: parsedData.length === 0 ? "hidden" : "visible", marginTop: '1em' }}>
                 <FontAwesomeIcon icon={faCalculator} />
