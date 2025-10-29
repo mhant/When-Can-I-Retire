@@ -70,6 +70,13 @@
     gap: 8px;
 }
 
+.budget-analysis-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 12px;
+    gap: 8px;
+}
+
 .input-row label {
     width: 150px;
     margin-right: 12px;

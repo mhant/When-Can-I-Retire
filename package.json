@@ -16,7 +16,8 @@
     "@emotion/styled": "^11.x.x",
     "papaparse": "^5.5",
     "@mui/x-data-grid": "^8.15.0",
-    "@emotion/react": "^11.14.0"
+    "@emotion/react": "^11.14.0",
+    "react-hot-toast": "^2.6.0"
   },
   "devDependencies": {
     "@fortawesome/fontawesome-svg-core": "^7",

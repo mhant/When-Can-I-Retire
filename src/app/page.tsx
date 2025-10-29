@@ -148,7 +148,7 @@ export default function Home() {
     const newIncome = {
       id: Date.now().toString(),
       name: incomeName,
-      value: parseFloat(incomeValue),
+      value: parseFloat(incomeValue.replace(/,/g, '')),
       endsAtRetirement: incomeEndsAtRetirement
     };
     setIncomes([...incomes, newIncome]);
@@ -162,7 +162,7 @@ export default function Home() {
     const newExpense = {
       id: Date.now().toString(),
       name: expenseName,
-      value: parseFloat(expenseValue),
+      value: parseFloat(expenseValue.replace(/,/g, '')),
       endsAtRetirement: endsAtRetirement
     };
     setExpenses([...expenses, newExpense]);
