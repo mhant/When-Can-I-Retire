@@ -306,7 +306,7 @@ export default function Home() {
       />
       <nav className="tab-container">
         <button className={`tab ${activeTab === 'budget_analysis' ? 'active' : ''}`} onClick={() => setActiveTab('budget_analysis')}>
-          Budget Analysis
+          Budget Analysis (CSV Upload)
         </button>
         <button className={`tab ${activeTab === 'assets' ? 'active' : ''}`} onClick={() => setActiveTab('assets')}>
           Assets
@@ -499,6 +499,10 @@ export default function Home() {
             deleteExpense={deleteExpense} />
         )}
       </main>
+      <div className="footer">
+        Leave feedback or get help at <a href="https://review.bugsmash.io/SzA9Z" target="_blank" rel="noopener noreferrer">BugSmash</a>.<br />
+        <p>©2025 Retirement Simulator. All rights reserved.</p>
+      </div>
     </div>
   );
 }

@@ -77,6 +77,19 @@
     gap: 8px;
 }
 
+.footer {
+    text-align: center;
+    padding: 12px;
+    background-color: #f1f1f1;
+    font-size: 14px;
+    color: #666;
+}
+
+.footer a {
+    color: #4CAF50;
+    text-decoration: none;
+}
+
 .input-row label {
     width: 150px;
     margin-right: 12px;
