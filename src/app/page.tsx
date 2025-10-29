@@ -75,7 +75,7 @@ export default function Home() {
   // Monthly Expenses
   const [expenses, setExpenses] = useState<IncomeExpense[]>([]);
 
-  const [activeTab, setActiveTab] = useState('overview');
+  const [activeTab, setActiveTab] = useState('budget_analysis');
   const [isLoading, setIsLoading] = useState(true);
 
 
@@ -305,9 +305,6 @@ export default function Home() {
         style={{ display: 'none' }}
       />
       <nav className="tab-container">
-        <button className={`tab ${activeTab === 'overview' ? 'active' : ''}`} onClick={() => setActiveTab('overview')}>
-          Overview
-        </button>
         <button className={`tab ${activeTab === 'budget_analysis' ? 'active' : ''}`} onClick={() => setActiveTab('budget_analysis')}>
           Budget Analysis
         </button>
@@ -323,13 +320,16 @@ export default function Home() {
         <button className={`tab ${activeTab === 'expenses' ? 'active' : ''}`} onClick={() => setActiveTab('expenses')}>
           Expenses
         </button>
+        <button className={`tab ${activeTab === 'overview' ? 'active' : ''}`} onClick={() => setActiveTab('overview')}>
+          Simulation
+        </button>
       </nav>
 
       <main className="content">
         {activeTab === 'overview' && (
           <div>
             <section className="section">
-              <h2>Your Information</h2>
+              <h2>Your Simulation</h2>
               <div className="input-row">
                 <label>Current Age:</label>
                 <input
