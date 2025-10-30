@@ -140,7 +140,7 @@ export default function Home() {
     setDebts([...debts, { id: Date.now().toString(), name: debtName, value: parseFloat(debtValue) }]);
   };
 
-  const addIncome = (incomeName: string, incomeValue: string, incomeEndsAtRetirement: boolean) => {
+  const addIncome = (incomeName: string, incomeValue: string, incomeEndsAtRetirement: boolean, endAge?: number) => {
     if (!incomeName || !incomeValue) {
       alert('Please fill in all fields');
       return;
@@ -149,12 +149,13 @@ export default function Home() {
       id: Date.now().toString(),
       name: incomeName,
       value: parseFloat(incomeValue.replace(/,/g, '')),
-      endsAtRetirement: incomeEndsAtRetirement
+      endsAtRetirement: incomeEndsAtRetirement,
+      endAge: endAge ?? null,
     };
     setIncomes([...incomes, newIncome]);
   };
 
-  const addExpense = (expenseName: string, expenseValue: string, endsAtRetirement: boolean) => {
+  const addExpense = (expenseName: string, expenseValue: string, endsAtRetirement: boolean, endAge?: number) => {
     if (!expenseName || !expenseValue) {
       alert('Please fill in all fields');
       return;
@@ -163,7 +164,8 @@ export default function Home() {
       id: Date.now().toString(),
       name: expenseName,
       value: parseFloat(expenseValue.replace(/,/g, '')),
-      endsAtRetirement: endsAtRetirement
+      endsAtRetirement: endsAtRetirement,
+      endAge: endAge ?? null,
     };
     setExpenses([...expenses, newExpense]);
   };
@@ -186,6 +188,7 @@ export default function Home() {
   const getActiveIncomeAtAge = (age: number, retirementAge: number | null = null, incomes: IncomeExpense[]) => {
     return incomes.reduce((sum, income) => {
       if (income.endsAtRetirement && retirementAge && age > retirementAge) return sum;
+      if (income.endAge && age > income.endAge) return sum;
       return sum + income.value;
     }, 0);
   };
@@ -194,6 +197,7 @@ export default function Home() {
     return expenses.reduce((sum, expense) => {
       const inflationEst = (inflation ? Math.pow(inflation + 1, years) : 1)
       if (expense.endsAtRetirement && retirementAge && age > retirementAge) return sum * inflationEst;
+      if (expense.endAge && age > expense.endAge) return sum * inflationEst;
       return (sum + expense.value) * inflationEst;
     }, 0);
   };

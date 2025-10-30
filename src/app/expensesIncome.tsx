@@ -1,7 +1,6 @@
 // components/MonthlyExpenses.tsx
 
 import React from 'react';
-import { ChangeEvent } from 'react';
 import { IncomeExpense } from './types';
 
 // Define the shape of all the props this component expects to receive
@@ -12,7 +11,7 @@ interface MonthlyExpensesProps {
     isExpense: boolean;
 
     // Action functions
-    addExpense: (expenseName: string, expenseValue: string, endsAtRetirement: boolean) => void;
+    addExpense: (expenseName: string, expenseValue: string, endsAtRetirement: boolean, endAge?: number) => void;
     deleteExpense: (id: string) => void;
 }
 
@@ -27,6 +26,7 @@ export default function MonthlyExpensesIncome({
     const [expenseName, setExpenseName] = React.useState("");
     const [expenseValue, setExpenseValue] = React.useState("");
     const [expenseEndsAtRetirement, setExpenseEndsAtRetirement] = React.useState(false);
+    const [expenseEndAge, setExpenseEndAge] = React.useState<number | null>(null);
     return (
         <section className="section">
             <h2>Monthly {isExpense ? "Expenses" : "Income"} (Total: ${totalMonthlyExpenses.toLocaleString()}/mo)</h2>
@@ -47,14 +47,29 @@ export default function MonthlyExpensesIncome({
                     <label>
                         <input
                             type="checkbox"
+                            disabled={expenseEndAge !== null}
                             checked={expenseEndsAtRetirement}
                             onChange={(e) => setExpenseEndsAtRetirement(e.target.checked)}
                         />
                         Ends at retirement
                     </label>
                 </div>
+                <div className="switch-row">
+                    <label>
+                        Ends at age:
+                        <input
+                            type="number"
+                            value={expenseEndAge !== null ? expenseEndAge : ''}
+                            placeholder="e.g., 65"
+                            disabled={expenseEndsAtRetirement}
+                            min="0"
+                            style={{ marginLeft: '8px', width: '80px' }}
+                            onChange={(e) => setExpenseEndAge(e.target.value ? parseInt(e.target.value) : null)}
+                        />
+                    </label>
+                </div>
                 <button className="add-button"
-                    onClick={() => addExpense(expenseName, expenseValue, expenseEndsAtRetirement)}>Add {isExpense ? "Expense" : "Income"}</button>
+                    onClick={() => addExpense(expenseName, expenseValue, expenseEndsAtRetirement, expenseEndAge ?? undefined)}>Add {isExpense ? "Expense" : "Income"}</button>
             </div>
             <div className="list">
                 {expenses.length === 0 ? (
@@ -67,6 +82,9 @@ export default function MonthlyExpensesIncome({
                                 <div className={"list-item-value " + (isExpense ? "negative" : "positive")}>${expense.value.toLocaleString()}/mo</div>
                                 {expense.endsAtRetirement && (
                                     <div className="list-item-detail">Ends at retirement</div>
+                                )}
+                                {expense.endAge != null && (
+                                    <div className="list-item-detail">Ends at age {expense.endAge?.toString()} .</div>
                                 )}
                             </div>
                             <button className="delete-button" onClick={() => deleteExpense(expense.id)}>×</button>
