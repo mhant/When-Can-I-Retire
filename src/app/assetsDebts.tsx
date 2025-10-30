@@ -1,7 +1,6 @@
 // components/AssetsDebts.tsx
 
 import React from 'react';
-import { ChangeEvent } from 'react';
 import { AssetDebt } from './types';
 
 interface AssetsDebtsProps {
@@ -24,6 +23,11 @@ export default function AssetsDebts({
     return (
         <section className="section">
             <h2>{isAsset ? "Assets" : "Debts"} (Total: ${totalAssetsDebts})</h2>
+            {!isAsset && (
+                <div className="warning-box">
+                    <strong>Warning:</strong> Better to add debts as monthly expenses with an expiration date. Note that interest will be applied to these repayments.
+                </div>
+            )}
             <div className="form">
                 <input
                     type="text"
@@ -42,7 +46,7 @@ export default function AssetsDebts({
             </div>
             <div className="list">
                 {items.length === 0 ? (
-                    <div className="empty-text">No assets added yet</div>
+                    <div className="empty-text">{isAsset ? "No assets added yet" : "No debts added yet"}</div>
                 ) : (
                     items.map((asset) => (
                         <div key={asset.id} className="list-item">

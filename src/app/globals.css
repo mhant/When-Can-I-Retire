@@ -13,6 +13,16 @@
   }
 }
 
+.warning-box {
+  background-color: #e60000;
+  border: 1px solid #800000;
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 15px;
+  color: white;
+  font-weight: bold;
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
