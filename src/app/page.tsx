@@ -140,9 +140,20 @@ export default function Home() {
     setDebts([...debts, { id: Date.now().toString(), name: debtName, value: parseFloat(debtValue) }]);
   };
 
-  const addIncome = (incomeName: string, incomeValue: string, incomeEndsAtRetirement: boolean, endAge?: number) => {
+  const saveIncome = (incomeName: string, incomeValue: string, incomeEndsAtRetirement: boolean, endAge?: number, id?: string) => {
     if (!incomeName || !incomeValue) {
       alert('Please fill in all fields');
+      return;
+    }
+    if (id) {
+      // Edit existing income
+      setIncomes(incomes.map(i => i.id === id ? {
+        ...i,
+        name: incomeName,
+        value: parseFloat(incomeValue.replace(/,/g, '')),
+        endsAtRetirement: incomeEndsAtRetirement,
+        endAge: endAge ?? null,
+      } : i));
       return;
     }
     const newIncome = {
@@ -155,9 +166,20 @@ export default function Home() {
     setIncomes([...incomes, newIncome]);
   };
 
-  const addExpense = (expenseName: string, expenseValue: string, endsAtRetirement: boolean, endAge?: number) => {
+  const saveExpense = (expenseName: string, expenseValue: string, endsAtRetirement: boolean, endAge?: number, id?: string) => {
     if (!expenseName || !expenseValue) {
       alert('Please fill in all fields');
+      return;
+    }
+    if (id) {
+      // Edit existing expense
+      setExpenses(expenses.map(e => e.id === id ? {
+        ...e,
+        name: expenseName,
+        value: parseFloat(expenseValue.replace(/,/g, '')),
+        endsAtRetirement: endsAtRetirement,
+        endAge: endAge ?? null,
+      } : e));
       return;
     }
     const newExpense = {
@@ -463,8 +485,8 @@ export default function Home() {
 
         {activeTab === 'budget_analysis' && (
           <BudgetAnalysis
-            addExpense={addExpense}
-            addIncome={addIncome} />)
+            addExpense={saveExpense}
+            addIncome={saveIncome} />)
         }
 
         {activeTab === 'assets' && (
@@ -490,7 +512,7 @@ export default function Home() {
             isExpense={false}
             totalMonthlyExpenses={totalMonthlyIncome}
             expenses={incomes}
-            addExpense={addIncome}
+            saveExpense={saveIncome}
             deleteExpense={deleteIncome} />
         )}
 
@@ -499,7 +521,7 @@ export default function Home() {
             isExpense={true}
             totalMonthlyExpenses={totalMonthlyExpenses}
             expenses={expenses}
-            addExpense={addExpense}
+            saveExpense={saveExpense}
             deleteExpense={deleteExpense} />
         )}
       </main>

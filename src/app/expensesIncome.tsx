@@ -2,6 +2,8 @@
 
 import React from 'react';
 import { IncomeExpense } from './types';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faAdjust, faPen } from '@fortawesome/free-solid-svg-icons';
 
 // Define the shape of all the props this component expects to receive
 interface MonthlyExpensesProps {
@@ -11,7 +13,7 @@ interface MonthlyExpensesProps {
     isExpense: boolean;
 
     // Action functions
-    addExpense: (expenseName: string, expenseValue: string, endsAtRetirement: boolean, endAge?: number) => void;
+    saveExpense: (expenseName: string, expenseValue: string, endsAtRetirement: boolean, endAge?: number, id?: string) => void;
     deleteExpense: (id: string) => void;
 }
 
@@ -20,13 +22,31 @@ export default function MonthlyExpensesIncome({
     totalMonthlyExpenses,
     expenses,
     isExpense,
-    addExpense,
+    saveExpense,
     deleteExpense,
 }: MonthlyExpensesProps) {
+    const editExpense = (id: string) => {
+        setExpenseName(expenses.find(e => e.id === id)?.name || "");
+        setExpenseValue(expenses.find(e => e.id === id)?.value.toString() || "");
+        setExpenseEndsAtRetirement(expenses.find(e => e.id === id)?.endsAtRetirement || false);
+        setExpenseEndAge(expenses.find(e => e.id === id)?.endAge || null);
+        setEditingExpenseId(id);
+        setInEditMode(true);
+    }
+    const addEditExpense = (expenseName: string, expenseValue: string, endsAtRetirement: boolean, endAge?: number) => {
+        saveExpense(expenseName, expenseValue, endsAtRetirement, endAge, editingExpenseId ?? undefined);
+        if (inEditMode) {
+            setInEditMode(false);
+            setEditingExpenseId(null);
+        }
+    }
+
     const [expenseName, setExpenseName] = React.useState("");
+    const [inEditMode, setInEditMode] = React.useState(false);
     const [expenseValue, setExpenseValue] = React.useState("");
     const [expenseEndsAtRetirement, setExpenseEndsAtRetirement] = React.useState(false);
     const [expenseEndAge, setExpenseEndAge] = React.useState<number | null>(null);
+    const [editingExpenseId, setEditingExpenseId] = React.useState<string | null>(null);
     return (
         <section className="section">
             <h2>Monthly {isExpense ? "Expenses" : "Income"} (Total: ${totalMonthlyExpenses.toLocaleString()}/mo)</h2>
@@ -63,20 +83,39 @@ export default function MonthlyExpensesIncome({
                             placeholder="e.g., 65"
                             disabled={expenseEndsAtRetirement}
                             min="0"
-                            style={{ marginLeft: '8px', width: '80px' }}
+                            style={{ marginLeft: '8px', width: '80px', minWidth: '110px' }}
                             onChange={(e) => setExpenseEndAge(e.target.value ? parseInt(e.target.value) : null)}
                         />
                     </label>
                 </div>
-                <button className="add-button"
-                    onClick={() => addExpense(expenseName, expenseValue, expenseEndsAtRetirement, expenseEndAge ?? undefined)}>Add {isExpense ? "Expense" : "Income"}</button>
+                <div className="switch-row">
+                    <button className="add-button"
+                        onClick={() =>
+                            addEditExpense(expenseName, expenseValue, expenseEndsAtRetirement, expenseEndAge ?? undefined)}>
+                        {inEditMode ? "Update" : "Add"} {isExpense ? "Expense" : "Income"}
+                    </button>
+                    {inEditMode && (
+                        <button className="cancel-button"
+                            onClick={() => {
+                                setInEditMode(false);
+                                setEditingExpenseId(null);
+                                setExpenseName("");
+                                setExpenseValue("");
+                                setExpenseEndsAtRetirement(false);
+                                setExpenseEndAge(null);
+                            }}
+                        >
+                            Cancel
+                        </button>
+                    )}
+                </div>
             </div>
             <div className="list">
                 {expenses.length === 0 ? (
                     <div className="empty-text">No {isExpense ? "expenses" : "income"} added yet</div>
                 ) : (
                     expenses.map((expense) => (
-                        <div key={expense.id} className="list-item">
+                        <div key={expense.id} className={expense.id == editingExpenseId ? "list-item editing" : "list-item"}>
                             <div className="list-item-info">
                                 <div className="list-item-name">{expense.name}</div>
                                 <div className={"list-item-value " + (isExpense ? "negative" : "positive")}>${expense.value.toLocaleString()}/mo</div>
@@ -87,6 +126,7 @@ export default function MonthlyExpensesIncome({
                                     <div className="list-item-detail">Ends at age {expense.endAge?.toString()} .</div>
                                 )}
                             </div>
+                            <button className="edit-button" onClick={() => editExpense(expense.id)}> <FontAwesomeIcon icon={faPen} /></button>
                             <button className="delete-button" onClick={() => deleteExpense(expense.id)}>×</button>
                         </div>
                     ))

@@ -77,6 +77,14 @@
     gap: 8px;
 }
 
+.list-item.editing {
+    background-color: #fff8e1;
+    color: #262626;
+    box-shadow: 0 0 0 2px #ff9800, inset 0 0 8px rgba(0, 0, 0, 0.1);
+    transform: scale(1.01);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
 .footer {
     text-align: center;
     padding: 12px;
@@ -214,6 +222,18 @@ body {
     border: 1px solid #ddd;
     border-radius: 4px;
     font-size: 16px;
+}
+
+.cancel-button {
+    padding: 10px 20px;
+    background-color: #e53935;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s;
 }
 
 .switch-row {
