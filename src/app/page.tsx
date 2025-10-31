@@ -124,15 +124,24 @@ export default function Home() {
   };
 
   // Add functions
-  const addAsset = (assetName: string, assetValue: string, yearlyContribution?: string) => {
+  const addAsset = (assetName: string, assetValue: string, yearlyContribution?: string, id?: string) => {
     if (!assetName || !assetValue) {
       alert('Please fill in all fields');
+      return;
+    }
+    if (id) {
+      setAssets(assets.map(a => a.id === id ? {
+        ...a,
+        name: assetName,
+        value: parseFloat(assetValue),
+        yearlyContribution: yearlyContribution ? parseFloat(yearlyContribution) : undefined
+      } : a));
       return;
     }
     setAssets([...assets, { id: Date.now().toString(), name: assetName, value: parseFloat(assetValue), yearlyContribution: yearlyContribution ? parseFloat(yearlyContribution) : undefined }]);
   };
 
-  const addDebt = (debtName: string, debtValue: string) => {
+  const addDebt = (debtName: string, debtValue: string, id?: string) => {
     if (!debtName || !debtValue) {
       alert('Please fill in all fields');
       return;
@@ -504,7 +513,7 @@ export default function Home() {
             isAsset={true}
             items={assets}
             totalAssetsDebts={totalAssets}
-            addItem={addAsset}
+            saveItem={addAsset}
             deleteItem={deleteAsset} />
         )}
 
@@ -513,7 +522,7 @@ export default function Home() {
             isAsset={false}
             items={debts}
             totalAssetsDebts={totalDebts}
-            addItem={addDebt}
+            saveItem={addDebt}
             deleteItem={deleteDebt} />
         )}
 
