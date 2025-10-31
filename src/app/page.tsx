@@ -317,6 +317,7 @@ export default function Home() {
     <div className="app">
       <header className="header">
         <h1>Retirement Simulator</h1>
+        <div className="disclaimer">This app is for educational purposes and please consultant a certified accountant, financial advisor, or investment advisor.</div>
       </header>
       <div className="button-container">
         <button className="export-button" onClick={() => {

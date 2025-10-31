@@ -5,15 +5,57 @@
 }
 
 .header {
-    background-color: #4CAF50;
-    padding: 16px;
+    /* 1. Gradient Background for depth */
+    background: linear-gradient(135deg, #1A237E 0%, #8790c9 100%);
+
+    /* 2. Generous Padding for space and modern aesthetics */
+    padding: 20px 0 15px 0;
+
+    /* 3. Strong Box Shadow for a "floating" effect */
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3);
+
+    /* 4. Ensure text is bright white for maximum contrast on the dark background */
     color: white;
+
+    /* 5. Smooth transition for hover effects (optional but nice) */
+    transition: box-shadow 0.3s ease;
 }
 
+
 .header h1 {
-    font-size: 24px;
+    /* 1. Increased Size and Weight for dominance */
+    font-size: clamp(28px, 5vw, 40px);
+    /* Responsive sizing for all devices */
+    font-weight: 900;
     text-align: center;
     margin: 0;
+
+    /* 2. Subtle Text Shadow for pop and definition */
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+
+    /* 3. Optional: Transform to uppercase for a structured, professional look */
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+
+.disclaimer {
+    /* 1. Subtle Contrast: Use a lighter gray for the disclaimer */
+    color: rgba(255, 255, 255, 0.7);
+
+    /* 2. Increased Readability */
+    font-size: 13px;
+    font-weight: 300;
+    text-align: center;
+
+    /* 3. Visual Separator Line (using a border) */
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+    padding-top: 10px;
+    margin-top: 15px;
+    /* Increased margin from the H1 */
+
+    /* 4. Use a monospace font for a technical/serious touch (optional) */
+    font-family: 'Consolas', 'Courier New', monospace;
 }
 
 .tab-container {
@@ -276,7 +318,7 @@ ol ol li::marker {
 }
 
 body {
-    color: #000;
+    color: #1A237E;
 }
 
 .form {
