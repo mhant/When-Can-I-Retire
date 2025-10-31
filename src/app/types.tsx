@@ -4,6 +4,7 @@ export interface AssetDebt {
     id: string;
     name: string;
     value: number;
+    yearlyContribution?: number;
 }
 
 export interface IncomeExpense {

@@ -7,7 +7,7 @@ interface AssetsDebtsProps {
     items: AssetDebt[];
     isAsset: boolean;
     totalAssetsDebts: number;
-    addItem: (itemName: string, itemValue: string) => void;
+    addItem: (itemName: string, itemValue: string, yearlyContribution: string) => void;
     deleteItem: (id: string) => void;
 }
 
@@ -20,6 +20,7 @@ export default function AssetsDebts({
 }: AssetsDebtsProps) {
     const [itemName, setItemName] = React.useState("");
     const [itemValue, setItemValue] = React.useState("");
+    const [yearlyContribution, setYearlyContribution] = React.useState("");
     return (
         <section className="section">
             <h2>{isAsset ? "Assets" : "Debts"} (Total: ${totalAssetsDebts})</h2>
@@ -41,8 +42,14 @@ export default function AssetsDebts({
                     value={itemValue}
                     onChange={(e) => setItemValue(e.target.value)}
                 />
+                {isAsset && <div><label>Yearly Contribution (added until retirement):</label><input
+                    type="number"
+                    placeholder="I.e. salary contribution to pension"
+                    value={yearlyContribution}
+                    onChange={(e) => setYearlyContribution(e.target.value)}
+                /></div>}
                 <button className="add-button"
-                    onClick={() => addItem(itemName, itemValue)}>Add {isAsset ? "Asset" : "Debt"}</button>
+                    onClick={() => addItem(itemName, itemValue, yearlyContribution)}>Add {isAsset ? "Asset" : "Debt"}</button>
             </div>
             <div className="list">
                 {items.length === 0 ? (
@@ -53,6 +60,9 @@ export default function AssetsDebts({
                             <div className="list-item-info">
                                 <div className="list-item-name">{asset.name}</div>
                                 <div className={"list-item-value " + isAsset ? "positive" : "negative"}>${asset.value.toLocaleString()}</div>
+                                {isAsset && asset.yearlyContribution !== undefined && (
+                                    <div className="list-item-subvalue">Yearly Contribution: ${asset.yearlyContribution.toLocaleString()}</div>
+                                )}
                             </div>
                             <button className="delete-button" onClick={() => deleteItem(asset.id)}>×</button>
                         </div>

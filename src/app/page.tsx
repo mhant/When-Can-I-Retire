@@ -124,12 +124,12 @@ export default function Home() {
   };
 
   // Add functions
-  const addAsset = (assetName: string, assetValue: string) => {
+  const addAsset = (assetName: string, assetValue: string, yearlyContribution?: string) => {
     if (!assetName || !assetValue) {
       alert('Please fill in all fields');
       return;
     }
-    setAssets([...assets, { id: Date.now().toString(), name: assetName, value: parseFloat(assetValue) }]);
+    setAssets([...assets, { id: Date.now().toString(), name: assetName, value: parseFloat(assetValue), yearlyContribution: yearlyContribution ? parseFloat(yearlyContribution) : undefined }]);
   };
 
   const addDebt = (debtName: string, debtValue: string) => {
@@ -224,6 +224,15 @@ export default function Home() {
     }, 0);
   };
 
+  const getActiveAssetContributionsAtAge = (age: number, retirementAge: number | null = null, assets: AssetDebt[]) => {
+    return assets.reduce((sum, asset) => {
+      if (asset.yearlyContribution && retirementAge && age <= retirementAge) {
+        sum += asset.yearlyContribution;
+      }
+      return sum;
+    }, 0);
+  };
+
   // Calculate retirement projection
   const retirementData = (currentAge: string, inflationRate: string, netWorth: number, totalMonthlyExpenses: number, totalDebts: number, incomes: IncomeExpense[], expenses: IncomeExpense[], retirementAge: number, savingsInterest: string) => {
     const age = parseInt(currentAge) || 30;
@@ -244,7 +253,8 @@ export default function Home() {
         projectedAge++;
         const activeIncome = getActiveIncomeAtAge(projectedAge, retirementAge, incomes);
         const activeExpenses = getActiveExpensesAtAge(projectedAge, year, retirementAge, inflation, expenses);
-        const adjustedMonthlySavings = activeIncome - activeExpenses;
+        const asssetContributions = getActiveAssetContributionsAtAge(projectedAge, retirementAge, assets);
+        const adjustedMonthlySavings = activeIncome + asssetContributions - activeExpenses;
         currentTotalWorth += adjustedMonthlySavings * 12;
         currentTotalWorth *= (1 + interest);
         let currPoint = dataPoints[year];
