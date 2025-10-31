@@ -85,6 +85,75 @@
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+.instruction-text {
+    font-size: 1.1em;
+    line-height: 1.5;
+    color: #555;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    padding: 15px;
+    margin: 20px 0;
+    background-color: #e3f2fd;
+    border: 2px solid #3A6EA5;
+}
+
+ol {
+    list-style-type: decimal;
+    display: block;
+    padding-left: 15px;
+    margin-bottom: 10px;
+    columns: 2;
+}
+
+ul {
+    list-style-type: square;
+}
+
+ol ol {
+    list-style-type: lower-alpha;
+    columns: 1;
+    margin: 0;
+}
+
+ol li {
+    display: list-item;
+    margin: 0px;
+}
+
+ol li::marker {
+    color: #3A6EA5;
+    font-weight: bold;
+    font-size: 1.1em;
+}
+
+ol ol li::marker {
+    color: #da5f26;
+    font-weight: bold;
+    font-size: 1.1em;
+}
+
+.collapsible-content {
+    transition: max-height 0.4s ease-out, opacity 0.3s ease-out;
+    max-height: 5000px;
+    overflow: hidden;
+    opacity: 1;
+    margin-top: 10px;
+    padding-left: 10px;
+}
+
+.collapsible-content.collapsed {
+    max-height: 0;
+    opacity: 0;
+    margin-top: 0;
+    padding-top: 0;
+}
+
+.collapse-arrow {
+    float: right;
+    font-size: 18px;
+    user-select: none;
+}
+
 .footer {
     text-align: center;
     padding: 12px;
@@ -384,12 +453,6 @@ body {
     padding-left: 10px;
 }
 
-.instruction-text {
-    font-size: 1.1em;
-    line-height: 1.5;
-    color: #555;
-}
-
 .instruction-text strong {
     color: #cc0000;
     font-weight: bold;
@@ -453,5 +516,10 @@ body {
         width: 100%;
         margin-bottom: 4px;
         border: #000;
+    }
+
+    ol {
+        columns: 1;
+        column-gap: normal;
     }
 }

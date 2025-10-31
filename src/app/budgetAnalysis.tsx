@@ -1,4 +1,4 @@
-import { faCalculator } from '@fortawesome/free-solid-svg-icons';
+import { faCalculator, faUpload } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Papa from 'papaparse';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
@@ -26,6 +26,11 @@ export default function BudgetAnalysis({ addExpense, addIncome }: BudgetAnalysis
     const [earliestDate, setEarliestDate] = React.useState<Date | null>(null);
     const [latestDate, setLatestDate] = React.useState<Date | null>(null);
     const [monthsDiff, setMonthsDiff] = React.useState<number | null>(null);
+    const [instructionsCollapsed, setInstructionsCollapsed] = React.useState<boolean>(false);
+
+    const toggleCollapseInstructions = () => {
+        setInstructionsCollapsed(!instructionsCollapsed);
+    }
 
 
     const computeExpensesIncomeFromCSV = () => {
@@ -189,10 +194,32 @@ export default function BudgetAnalysis({ addExpense, addIncome }: BudgetAnalysis
         <>
             <section className="section">
                 <h2>Budget Analysis</h2>
-                <p className="instruction-text">
-                    Please upload a CSV file of your financial transactions.
-                    The file <b>must</b> have separate columns for <b>income</b> (deposits) and <b>expenses</b> (withdrawals).
-                </p>
+                <h3>Steps</h3>
+                <div className="instruction-text">
+                    <div className="instruction-header" onClick={toggleCollapseInstructions}>
+                        <span style={{ color: '#3A6EA5' }}> <FontAwesomeIcon icon={faUpload} />Upload Instructions</span>
+                        <span className="collapse-arrow">{instructionsCollapsed ? '►' : '▼'}</span>
+                    </div>
+                    <div className={`collapsible-content ${instructionsCollapsed ? 'collapsed' : ''}`}>
+                        <ol>
+                            <li>Download a CSV of your monthly transactions for longest period possible. The CSV will need to contain a date, expense, and income columns.
+                                <ol>
+                                    <li>If you bank only allows to export/download excel files you wil need to convert it to CSV.</li>
+                                    <li>If easier to clean the data in excel format, follow step 2 before coverting to CSV.</li>
+                                </ol>
+                            </li>
+                            <li>Ensure that the CSV has no header or content before the actual rows of transactions.</li>
+                            <li>Select Upload CSV File and select the file.</li>
+                            <li>After uploading you need to map the columns for date, expense, and income in the selector. If expense and income are in the same column map that column to "income and expense"</li>
+                            <li>After mapping the correct columns you can view the CSV and modify/correct data, e.g. if there is a miscalnous income/expense that should not be considered or considered differently.</li>
+                            <li>After reviewing the data, click the <code><FontAwesomeIcon icon={faCalculator} />Calculate Averages</code> button to calculate average income/expense
+                                <ul>
+                                    <li>You can easily add an average expense or income by clicking the <code>Add Average Monthly Income/Expense</code> button and editing in relevent tab.</li>
+                                </ul>
+                            </li>
+                        </ol>
+                    </div>
+                </div>
                 <br />
                 <label htmlFor="file-upload-id" className="custom-file-upload">
                     Upload CSV File
