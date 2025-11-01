@@ -186,6 +186,14 @@ ol ol li::marker {
     background-color: #f1f1f1;
     font-size: 14px;
     color: #666;
+    margin-top: auto;
+    /* pushes footer to bottom in the .app flex layout */
+    position: sticky;
+    /* keeps footer visible at the bottom when scrolling */
+    bottom: 0;
+    width: 100%;
+    z-index: 1000;
+    box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.05);
 }
 
 .footer a {
