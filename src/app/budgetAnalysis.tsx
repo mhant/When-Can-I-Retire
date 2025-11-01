@@ -194,7 +194,6 @@ export default function BudgetAnalysis({ addExpense, addIncome }: BudgetAnalysis
         <>
             <section className="section">
                 <h2>Budget Analysis</h2>
-                <h3>Steps</h3>
                 <div className="instruction-text">
                     <div className="instruction-header" onClick={toggleCollapseInstructions}>
                         <span style={{ color: '#3A6EA5' }}> <FontAwesomeIcon icon={faUpload} />Upload Instructions</span>
