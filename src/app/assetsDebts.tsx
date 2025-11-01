@@ -60,7 +60,7 @@ export default function AssetsDebts({
                     value={itemValue}
                     onChange={(e) => setItemValue(e.target.value)}
                 />
-                {isAsset && yearlyContribution && <div><label>Yearly Contribution (added until retirement):</label><input
+                {isAsset && <div><label>Yearly Contribution (added until retirement):</label><input
                     type="number"
                     placeholder="I.e. salary contribution to pension"
                     value={yearlyContribution ?? ""}
