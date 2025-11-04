@@ -203,7 +203,7 @@ export default function BudgetAnalysis({ addExpense, addIncome }: BudgetAnalysis
                         <ol>
                             <li>Download a CSV of your monthly transactions for longest period possible. The CSV will need to contain a date, expense, and income columns.
                                 <ol>
-                                    <li>If you bank only allows to export/download excel files you wil need to convert it to CSV.</li>
+                                    <li>If your bank only allows to export/download excel files you will need to convert it to CSV.</li>
                                     <li>If easier to clean the data in excel format, follow step 2 before coverting to CSV.</li>
                                 </ol>
                             </li>
