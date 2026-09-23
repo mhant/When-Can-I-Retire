@@ -13,7 +13,15 @@ interface MonthlyExpensesProps {
     isExpense: boolean;
 
     // Action functions
-    saveExpense: (expenseName: string, expenseValue: string, endsAtRetirement: boolean, endAge?: number, id?: string) => void;
+    saveExpense: (
+        expenseName: string,
+        expenseValue: string,
+        endsAtRetirement: boolean,
+        endAge?: number,
+        id?: string,
+        startAge?: number,
+        startsAtRetirement?: boolean
+    ) => void;
     deleteExpense: (id: string) => void;
 }
 
@@ -26,72 +34,150 @@ export default function MonthlyExpensesIncome({
     deleteExpense,
 }: MonthlyExpensesProps) {
     const editExpense = (id: string) => {
-        setExpenseName(expenses.find(e => e.id === id)?.name || "");
-        setExpenseValue(expenses.find(e => e.id === id)?.value.toString() || "");
-        setExpenseEndsAtRetirement(expenses.find(e => e.id === id)?.endsAtRetirement || false);
-        setExpenseEndAge(expenses.find(e => e.id === id)?.endAge || null);
+        const item = expenses.find(e => e.id === id);
+        setExpenseName(item?.name || "");
+        setExpenseValue(item?.value.toString() || "");
+        setExpenseEndsAtRetirement(item?.endsAtRetirement || false);
+        setExpenseEndAge(item?.endAge ?? null);
+        setExpenseStartsAtRetirement(item?.startsAtRetirement || false);
+        setExpenseStartAge(item?.startAge ?? null);
         setEditingExpenseId(id);
         setInEditMode(true);
-    }
-    const addEditExpense = (expenseName: string, expenseValue: string, endsAtRetirement: boolean, endAge?: number) => {
-        saveExpense(expenseName, expenseValue, endsAtRetirement, endAge, editingExpenseId ?? undefined);
+    };
+
+    const addEditExpense = (
+        name: string,
+        value: string,
+        endsAtRetirement: boolean,
+        endAge?: number,
+        startAge?: number,
+        startsAtRetirement?: boolean
+    ) => {
+        saveExpense(
+            name,
+            value,
+            endsAtRetirement,
+            endAge,
+            editingExpenseId ?? undefined,
+            startAge,
+            startsAtRetirement
+        );
         if (inEditMode) {
             setInEditMode(false);
             setEditingExpenseId(null);
+            resetForm();
         }
-    }
+    };
+
+    const resetForm = () => {
+        setExpenseName("");
+        setExpenseValue("");
+        setExpenseEndsAtRetirement(false);
+        setExpenseEndAge(null);
+        setExpenseStartsAtRetirement(false);
+        setExpenseStartAge(null);
+    };
 
     const [expenseName, setExpenseName] = React.useState("");
     const [inEditMode, setInEditMode] = React.useState(false);
     const [expenseValue, setExpenseValue] = React.useState("");
     const [expenseEndsAtRetirement, setExpenseEndsAtRetirement] = React.useState(false);
     const [expenseEndAge, setExpenseEndAge] = React.useState<number | null>(null);
+    const [expenseStartsAtRetirement, setExpenseStartsAtRetirement] = React.useState(false);
+    const [expenseStartAge, setExpenseStartAge] = React.useState<number | null>(null);
     const [editingExpenseId, setEditingExpenseId] = React.useState<string | null>(null);
+
     return (
         <section className="section">
             <h2>Monthly {isExpense ? "Expenses" : "Income"} (Total: ${totalMonthlyExpenses.toLocaleString()}/mo)</h2>
             <div className="form">
                 <input
                     type="text"
-                    placeholder={isExpense ? "Expense name (e.g., Rent)" : "Source of Income (e.g., Salary)"}
+                    placeholder={isExpense ? "Expense name (e.g., Rent, Health Insurance)" : "Source of Income (e.g., Salary, Social Security, Pension)"}
                     value={expenseName}
                     onChange={(e) => setExpenseName(e.target.value)}
                 />
                 <input
                     type="number"
-                    placeholder="Monthly amount"
+                    placeholder="Monthly amount ($)"
                     value={expenseValue}
                     onChange={(e) => setExpenseValue(e.target.value)}
                 />
-                <div className="switch-row">
-                    <label>
-                        <input
-                            type="checkbox"
-                            disabled={expenseEndAge !== null}
-                            checked={expenseEndsAtRetirement}
-                            onChange={(e) => setExpenseEndsAtRetirement(e.target.checked)}
-                        />
-                        Ends at retirement
-                    </label>
+
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '8px', padding: '8px', backgroundColor: '#f9f9fb', borderRadius: '6px' }}>
+                    <div>
+                        <span style={{ fontSize: '13px', fontWeight: 600, color: '#555' }}>Start Conditions:</span>
+                        <div className="switch-row">
+                            <label>
+                                <input
+                                    type="checkbox"
+                                    disabled={expenseStartAge !== null}
+                                    checked={expenseStartsAtRetirement}
+                                    onChange={(e) => {
+                                        setExpenseStartsAtRetirement(e.target.checked);
+                                        if (e.target.checked) setExpenseEndsAtRetirement(false);
+                                    }}
+                                />
+                                Starts at retirement
+                            </label>
+                        </div>
+                        <div className="switch-row">
+                            <label>
+                                Starts at age:
+                                <input
+                                    type="number"
+                                    value={expenseStartAge !== null ? expenseStartAge : ''}
+                                    placeholder="e.g., 67"
+                                    disabled={expenseStartsAtRetirement}
+                                    min="0"
+                                    style={{ marginLeft: '8px', width: '80px', minWidth: '80px' }}
+                                    onChange={(e) => setExpenseStartAge(e.target.value ? parseInt(e.target.value) : null)}
+                                />
+                            </label>
+                        </div>
+                    </div>
+
+                    <div>
+                        <span style={{ fontSize: '13px', fontWeight: 600, color: '#555' }}>End Conditions:</span>
+                        <div className="switch-row">
+                            <label>
+                                <input
+                                    type="checkbox"
+                                    disabled={expenseEndAge !== null || expenseStartsAtRetirement}
+                                    checked={expenseEndsAtRetirement}
+                                    onChange={(e) => setExpenseEndsAtRetirement(e.target.checked)}
+                                />
+                                Ends at retirement
+                            </label>
+                        </div>
+                        <div className="switch-row">
+                            <label>
+                                Ends at age:
+                                <input
+                                    type="number"
+                                    value={expenseEndAge !== null ? expenseEndAge : ''}
+                                    placeholder="e.g., 65"
+                                    disabled={expenseEndsAtRetirement}
+                                    min="0"
+                                    style={{ marginLeft: '8px', width: '80px', minWidth: '80px' }}
+                                    onChange={(e) => setExpenseEndAge(e.target.value ? parseInt(e.target.value) : null)}
+                                />
+                            </label>
+                        </div>
+                    </div>
                 </div>
-                <div className="switch-row">
-                    <label>
-                        Ends at age:
-                        <input
-                            type="number"
-                            value={expenseEndAge !== null ? expenseEndAge : ''}
-                            placeholder="e.g., 65"
-                            disabled={expenseEndsAtRetirement}
-                            min="0"
-                            style={{ marginLeft: '8px', width: '80px', minWidth: '110px' }}
-                            onChange={(e) => setExpenseEndAge(e.target.value ? parseInt(e.target.value) : null)}
-                        />
-                    </label>
-                </div>
+
                 <div className="switch-row">
                     <button className="add-button"
                         onClick={() =>
-                            addEditExpense(expenseName, expenseValue, expenseEndsAtRetirement, expenseEndAge ?? undefined)}>
+                            addEditExpense(
+                                expenseName,
+                                expenseValue,
+                                expenseEndsAtRetirement,
+                                expenseEndAge ?? undefined,
+                                expenseStartAge ?? undefined,
+                                expenseStartsAtRetirement
+                            )}>
                         {inEditMode ? "Update" : "Add"} {isExpense ? "Expense" : "Income"}
                     </button>
                     {inEditMode && (
@@ -99,10 +185,7 @@ export default function MonthlyExpensesIncome({
                             onClick={() => {
                                 setInEditMode(false);
                                 setEditingExpenseId(null);
-                                setExpenseName("");
-                                setExpenseValue("");
-                                setExpenseEndsAtRetirement(false);
-                                setExpenseEndAge(null);
+                                resetForm();
                             }}
                         >
                             Cancel
@@ -119,11 +202,17 @@ export default function MonthlyExpensesIncome({
                             <div className="list-item-info">
                                 <div className="list-item-name">{expense.name}</div>
                                 <div className={"list-item-value " + (isExpense ? "negative" : "positive")}>${expense.value.toLocaleString()}/mo</div>
+                                {expense.startsAtRetirement && (
+                                    <div className="list-item-detail">Starts at retirement</div>
+                                )}
+                                {expense.startAge != null && (
+                                    <div className="list-item-detail">Starts at age {expense.startAge}</div>
+                                )}
                                 {expense.endsAtRetirement && (
                                     <div className="list-item-detail">Ends at retirement</div>
                                 )}
                                 {expense.endAge != null && (
-                                    <div className="list-item-detail">Ends at age {expense.endAge?.toString()} .</div>
+                                    <div className="list-item-detail">Ends at age {expense.endAge}</div>
                                 )}
                             </div>
                             <button className="edit-button" onClick={() => editExpense(expense.id)}> <FontAwesomeIcon icon={faPen} /></button>

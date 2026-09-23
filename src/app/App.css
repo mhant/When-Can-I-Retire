@@ -557,3 +557,267 @@ body {
         column-gap: normal;
     }
 }
+
+/* Enhanced Projection Styles */
+.milestone-row-container {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 16px;
+}
+
+.milestone-row-container.safe-retire {
+    background: linear-gradient(180deg, #f0fdf4 0%, #f8fafc 100%);
+    border-color: #bbf7d0;
+}
+
+.milestone-row-container.fat-retire {
+    background: linear-gradient(180deg, #fffbeb 0%, #f8fafc 100%);
+    border-color: #fde68a;
+}
+
+.milestone-row-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.milestone-row-title {
+    font-size: 16px;
+    font-weight: 800;
+    color: #1e293b;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.milestones-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 14px;
+}
+
+
+.milestone-card {
+    background: linear-gradient(145deg, #ffffff 0%, #f7f9fc 100%);
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 16px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.milestone-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #5a6a85;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.milestone-value {
+    font-size: 24px;
+    font-weight: 800;
+    color: #1e293b;
+}
+
+.milestone-subtext {
+    font-size: 12px;
+    color: #64748b;
+    margin-top: 6px;
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.status-badge.success {
+    background-color: #dcfce7;
+    color: #166534;
+}
+
+.status-badge.warning {
+    background-color: #fef9c3;
+    color: #854d0e;
+}
+
+.status-badge.danger {
+    background-color: #fee2e2;
+    color: #991b1b;
+}
+
+.progress-container {
+    background-color: #e2e8f0;
+    border-radius: 9999px;
+    height: 8px;
+    width: 100%;
+    margin-top: 8px;
+    overflow: hidden;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    background-color: #3b82f6;
+    border-radius: 9999px;
+    transition: width 0.4s ease;
+}
+
+.toggle-group {
+    display: inline-flex;
+    background-color: #f1f5f9;
+    border-radius: 6px;
+    padding: 3px;
+    gap: 4px;
+}
+
+.toggle-btn {
+    padding: 6px 14px;
+    border: none;
+    border-radius: 4px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #64748b;
+    background: transparent;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.toggle-btn.active {
+    background-color: white;
+    color: #1A237E;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.chart-controls-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 16px;
+}
+
+.projection-table-wrapper {
+    overflow-x: auto;
+    max-height: 440px;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    margin-top: 12px;
+}
+
+.projection-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    text-align: right;
+}
+
+.projection-table th {
+    background-color: #f8fafc;
+    color: #475569;
+    font-weight: 700;
+    padding: 10px 12px;
+    position: sticky;
+    top: 0;
+    border-bottom: 2px solid #cbd5e1;
+    z-index: 2;
+    text-align: right;
+}
+
+.projection-table th:first-child,
+.projection-table td:first-child {
+    text-align: center;
+}
+
+.projection-table th:nth-child(2),
+.projection-table td:nth-child(2) {
+    text-align: left;
+}
+
+.projection-table td {
+    padding: 8px 12px;
+    border-bottom: 1px solid #f1f5f9;
+    color: #334155;
+}
+
+.projection-table tr:hover {
+    background-color: #f8fafc;
+}
+
+.projection-table tr.retired-row {
+    background-color: #f0fdf4;
+}
+
+.projection-table tr.retired-row:hover {
+    background-color: #dcfce7;
+}
+
+.projection-table tr.depleted-row {
+    background-color: #fff1f2;
+}
+
+.tag-working {
+    display: inline-block;
+    padding: 2px 6px;
+    font-size: 11px;
+    border-radius: 4px;
+    background-color: #e2e8f0;
+    color: #475569;
+}
+
+.tag-retired {
+    display: inline-block;
+    padding: 2px 6px;
+    font-size: 11px;
+    border-radius: 4px;
+    background-color: #bbf7d0;
+    color: #166534;
+    font-weight: 600;
+}
+
+.scenario-summary-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 12px;
+    margin: 16px 0;
+}
+
+.scenario-card {
+    padding: 12px 14px;
+    border-radius: 6px;
+    border: 1px solid #e2e8f0;
+    background: #ffffff;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.scenario-card.active {
+    border-color: #3A6EA5;
+    background-color: #f0f7ff;
+    box-shadow: 0 0 0 2px #3A6EA5;
+}
+
+.scenario-card-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 4px;
+}
+
+.scenario-card-stat {
+    font-size: 16px;
+    font-weight: 800;
+}
